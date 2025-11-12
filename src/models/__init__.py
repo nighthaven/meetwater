@@ -4,8 +4,10 @@ from src.config import settings
 
 
 def install_models() -> None:
-    #from src.models import ()
-    pass
+    from src.models import (
+        user,
+    )
+
 
 
 SQLALCHEMY_DATABASE_URL = f"postgresql://postgres:{settings.database_password}@{settings.database_hostname}:{settings.database_port}/{settings.database_name}"

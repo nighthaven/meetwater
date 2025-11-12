@@ -1,0 +1,2 @@
+class UserUnderMinimumAgeException(Exception):
+    pass

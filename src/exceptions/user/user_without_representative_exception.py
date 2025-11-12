@@ -1,0 +1,2 @@
+class UserWithoutRepresentativeException(Exception):
+    pass
