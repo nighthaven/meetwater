@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status, HTTPException, Depends
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
-from src.utils.security import Security
+from src.services.security import Security
 from src.models.user import User
 from src.models import db_dependency
 from typing import Annotated, Any
