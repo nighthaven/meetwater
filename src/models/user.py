@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from sqlalchemy import Date
 from sqlalchemy.orm import (  # type: ignore[attr-defined]
     Mapped,
     mapped_column,
@@ -29,7 +30,7 @@ class User(Base):
     password = Column(String, nullable=False)
     first_name = Column(String, nullable=False)
     last_name = Column(String, nullable=False)
-    birth_date = Column(TIMESTAMP, nullable=False)
+    birth_date = Column(Date, nullable=False)
     level = mapped_column(
         cast(TypeEngine, ARRAY(Enum(UserLevel))),
         nullable=False,
