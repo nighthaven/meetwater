@@ -7,7 +7,7 @@ from src.routes.dto.user.user_query import UserQuery
 from fastapi import APIRouter, status
 
 from src.usecases.create_user import create_user
-from src.utils.security import Security
+from src.services.security import Security
 from fastapi import Depends
 
 router = APIRouter(

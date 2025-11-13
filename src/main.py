@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends
 from src.routes.user_routes import router as user_router
 from src.routes.auth_routes import router as login_router
 from src.models.user import User
-from src.utils.security import Security
+from src.services.security import Security
 
 app = FastAPI()
 
