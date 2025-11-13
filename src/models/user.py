@@ -1,23 +1,17 @@
 import uuid
-from datetime import datetime
-from sqlalchemy import Date
-from sqlalchemy.orm import (  # type: ignore[attr-defined]
-    Mapped,
-    mapped_column,
-    relationship,
-)
-from typing import cast
-from sqlalchemy.orm import validates
-from sqlalchemy import func, and_
+from datetime import date, datetime
 
-from sqlalchemy import ARRAY, TIMESTAMP, Column, Enum, String
-from sqlalchemy.ext.hybrid import hybrid_method
+from sqlalchemy import (ARRAY, TIMESTAMP, CheckConstraint, Column, Date, Enum,
+                        String, and_, func)
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.sql.type_api import TypeEngine
-from sqlalchemy import CheckConstraint
+from sqlalchemy.ext.hybrid import hybrid_method
+from sqlalchemy.orm import Mapped  # type: ignore[attr-defined]
+from sqlalchemy.orm import mapped_column, validates
 
-from src.exceptions.user.user_under_minimum_age_exception import UserUnderMinimumAgeException
-from src.exceptions.user.user_without_representative_exception import UserWithoutRepresentativeException
+from src.exceptions.user.user_under_minimum_age_exception import \
+    UserUnderMinimumAgeException
+from src.exceptions.user.user_without_representative_exception import \
+    UserWithoutRepresentativeException
 from src.models import Base
 from src.models.enums.user_level import UserLevel
 
@@ -25,25 +19,34 @@ from src.models.enums.user_level import UserLevel
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    email = Column(String, nullable=False, unique=True)
-    password = Column(String, nullable=False)
-    first_name = Column(String, nullable=False)
-    last_name = Column(String, nullable=False)
-    birth_date = Column(Date, nullable=False)
-    level = mapped_column(
-        cast(TypeEngine, ARRAY(Enum(UserLevel))),
-        nullable=False,
-        default=lambda: [UserLevel.INTERMEDIATE],
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
-    representative = Column(String, nullable=True)
-    created_at = Column('created_at', TIMESTAMP(), server_default=func.now(), nullable=False)
+    email: Mapped[str] = mapped_column(String, nullable=False, unique=True)
+    password: Mapped[str] = mapped_column(String, nullable=False)
+    first_name: Mapped[str] = mapped_column(String, nullable=False)
+    last_name: Mapped[str] = mapped_column(String, nullable=False)
+    birth_date: Mapped[date] = mapped_column(Date, nullable=False)
+    level: Mapped[UserLevel] = mapped_column(
+        Enum(UserLevel, name="userlevel"),
+        nullable=False,
+        default=UserLevel.INTERMEDIATE,
+    )
+    representative: Mapped[str | None] = mapped_column(String, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(),
+        server_default=func.now(),
+        nullable=False,
+    )
 
     __table_args__ = (
-        CheckConstraint("EXTRACT(YEAR FROM AGE(CURRENT_DATE, birth_date)) >= 5", name="user_minimum_age_check"),
+        CheckConstraint(
+            "EXTRACT(YEAR FROM AGE(CURRENT_DATE, birth_date)) >= 5",
+            name="user_minimum_age_check",
+        ),
         CheckConstraint(
             "(EXTRACT(YEAR FROM AGE(CURRENT_DATE, birth_date)) >= 18) OR representative IS NOT NULL",
-            name="user_representative_if_minor_check"
+            name="user_representative_if_minor_check",
         ),
     )
 
@@ -56,24 +59,29 @@ class User(Base):
         year_age = datetime.now().year - birth_date.year
 
         if key == "birth_date" and (year_age < minimum_age):
-            raise UserUnderMinimumAgeException(f"User must be over {minimum_age} years old.")
+            raise UserUnderMinimumAgeException(
+                f"User must be over {minimum_age} years old."
+            )
         if year_age < legal_adult_age:
             if not representative or not representative.strip():
-                raise UserWithoutRepresentativeException(f"User is under {legal_adult_age} and has no representative.")
+                raise UserWithoutRepresentativeException(
+                    f"User is under {legal_adult_age} and has no representative."
+                )
 
         return value
 
     @hybrid_method
     def has_representative_if_not_adult(self, legal_adult_age: int = 18) -> bool:
         return datetime.now().year - self.birth_date.year < legal_adult_age and bool(
-            self.representative and self.representative.strip())
+            self.representative and self.representative.strip()
+        )
 
-    @has_representative_if_not_adult.expression
+    @has_representative_if_not_adult.expression  # type: ignore[no-redef]
     def has_representative_if_not_adult(cls):
         return and_(
-            func.date_part('year', func.age(func.current_date(), cls.birth_date)) < 18,
+            func.date_part("year", func.age(func.current_date(), cls.birth_date)) < 18,
             cls.representative is not None,
-            func.length(func.trim(cls.representative)) > 0
+            func.length(func.trim(cls.representative)) > 0,
         )
 
     def full_name(self) -> str:

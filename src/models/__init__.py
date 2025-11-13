@@ -1,15 +1,14 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker, Session
-from src.config import settings
-from fastapi import Depends
 from typing import Annotated
+
+from fastapi import Depends
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, declarative_base, sessionmaker
+
+from src.config import settings
 
 
 def install_models() -> None:
-    from src.models import (
-        user,
-    )
-
+    from src.models import user
 
 
 SQLALCHEMY_DATABASE_URL = f"postgresql://postgres:{settings.database_password}@{settings.database_hostname}:{settings.database_port}/{settings.database_name}"
@@ -17,7 +16,7 @@ SQLALCHEMY_DATABASE_URL = f"postgresql://postgres:{settings.database_password}@{
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
+Base = declarative_base()  # type: ignore
 
 
 def get_db():
@@ -26,5 +25,6 @@ def get_db():
         yield db
     finally:
         db.close()
+
 
 db_dependency = Annotated[Session, Depends(get_db)]

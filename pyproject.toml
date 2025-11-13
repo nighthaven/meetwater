@@ -16,4 +16,7 @@ dependencies = [
     "uvicorn[standard]>=0.38.0",
     "python-multipart>=0.0.20",
     "argon2-cffi>=25.1.0",
+    "black>=25.11.0",
+    "isort>=7.0.0",
+    "sqlalchemy2-stubs>=0.0.2a38",
 ]

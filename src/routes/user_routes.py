@@ -1,14 +1,12 @@
 from typing import Annotated, Any
 
+from fastapi import APIRouter, Depends, status
+
 from src.models.user import User
 from src.repository.user_repository import UserRepository
 from src.routes.dto.user.user_query import UserQuery
-
-from fastapi import APIRouter, status
-
-from src.usecases.create_user import create_user
 from src.services.security import Security
-from fastapi import Depends
+from src.usecases.create_user import create_user
 
 router = APIRouter(
     prefix="/users",
@@ -18,18 +16,9 @@ router = APIRouter(
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create_user_route(
-        query: UserQuery,
-        crypto: Annotated[Any, Depends(Security)],
-        user_repository: Annotated[Any, Depends(UserRepository)]
+    query: UserQuery,
+    security: Annotated[Any, Depends(Security)],
+    user_repository: Annotated[Any, Depends(UserRepository)],
 ):
-    new_user = User(
-        email=query.email,
-        password=crypto.hash_password(query.password),
-        first_name=query.first_name,
-        last_name=query.last_name,
-        birth_date=query.birth_date,
-        representative=query.representative,
-    )
-    create_user(new_user, user_repository)
+    create_user(query, user_repository, security)
     return
-

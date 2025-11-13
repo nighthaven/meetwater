@@ -3,7 +3,6 @@ import os
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
 env_path = ".env.test" if "PYTEST_VERSION" in os.environ else ".env.dev"
 load_dotenv(env_path)
 

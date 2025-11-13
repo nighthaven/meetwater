@@ -1,12 +1,16 @@
-from passlib.context import CryptContext
 from datetime import datetime, timedelta
-from src.config import settings
-from jose import JWTError, jwt
-from src.routes.dto.auth.token_data import TokenData
-from fastapi import HTTPException, status, Depends
+from typing import Any, Dict
+
+from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from src.models import Session, get_db
+from jose import JWTError, jwt
+from passlib.context import CryptContext
+from sqlalchemy.orm import Session
+
+from src.config import settings
+from src.models import get_db
 from src.models.user import User
+from src.routes.dto.auth.token_data import TokenData
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -14,12 +18,10 @@ SECRET_KEY = settings.secret_key
 ALGORYTHM = settings.algorythm
 ACCESS_TOKEN_EXPIRE_MINUTES = int(settings.access_token_expire_minutes)
 
+
 class Security:
     def __init__(self):
-        self.pwd_context = CryptContext(
-            schemes=["argon2"],
-            deprecated="auto"
-        )
+        self.pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
     def hash_password(self, password: str) -> str:
         return self.pwd_context.hash(password)
@@ -28,7 +30,7 @@ class Security:
         return self.pwd_context.verify(plain_password, hashed_password)
 
     @staticmethod
-    def create_access_token(data: dict):
+    def create_access_token(data: Dict[str, Any]):
         to_encode = data.copy()
         expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         to_encode.update({"exp": expire})
@@ -42,7 +44,7 @@ class Security:
     def verify_access_token(token: str, credential_exception):
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORYTHM])
-            id: str = payload.get("user_id")
+            id = payload.get("user_id")
             if id is None:
                 raise credential_exception
             token_data = TokenData(id=id)
@@ -51,16 +53,13 @@ class Security:
         return token_data
 
     def get_current_user(
-            self,
-            token: str = Depends(oauth2_scheme),
-            db: Session = Depends(get_db)
+        self, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
     ):
         credential_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Couldn't validate credential",
-            headers={"WWW-Authenticate": "Bearer"}
+            headers={"WWW-Authenticate": "Bearer"},
         )
-        token = self.verify_access_token(token, credential_exception)
-        user = db.query(User).filter_by(id=token.id).first()
-
+        token_data: TokenData = self.verify_access_token(token, credential_exception)
+        user = db.query(User).filter_by(id=token_data.id).first()
         return user
