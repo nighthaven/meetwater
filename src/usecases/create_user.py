@@ -1,7 +1,3 @@
-from typing import Annotated, Any
-
-from fastapi import Depends
-
 from src.models.user import User
 from src.repository.user_repository import UserRepository
 from src.services.security import Security

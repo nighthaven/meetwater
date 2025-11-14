@@ -2,7 +2,6 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, status
 
-from src.models.user import User
 from src.repository.user_repository import UserRepository
 from src.routes.dto.user.user_query import UserQuery
 from src.services.security import Security

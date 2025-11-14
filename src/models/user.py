@@ -1,17 +1,26 @@
 import uuid
 from datetime import date, datetime
 
-from sqlalchemy import (ARRAY, TIMESTAMP, CheckConstraint, Column, Date, Enum,
-                        String, and_, func)
+from sqlalchemy import (
+    TIMESTAMP,
+    CheckConstraint,
+    Date,
+    Enum,
+    String,
+    and_,
+    func,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.hybrid import hybrid_method
 from sqlalchemy.orm import Mapped  # type: ignore[attr-defined]
 from sqlalchemy.orm import mapped_column, validates
 
-from src.exceptions.user.user_under_minimum_age_exception import \
-    UserUnderMinimumAgeException
-from src.exceptions.user.user_without_representative_exception import \
-    UserWithoutRepresentativeException
+from src.exceptions.user.user_under_minimum_age_exception import (
+    UserUnderMinimumAgeException,
+)
+from src.exceptions.user.user_without_representative_exception import (
+    UserWithoutRepresentativeException,
+)
 from src.models import Base
 from src.models.enums.user_level import UserLevel
 

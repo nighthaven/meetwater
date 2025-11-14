@@ -20,16 +20,16 @@ def login(
     user = db.query(User).filter(User.email == credential.username).first()
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail=f"Invalid Credential"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Invalid Credential"
         )
     user_id = str(user.id)
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail=f"Invalid Credential"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Invalid Credential"
         )
     if not security.verify_password(credential.password, user.password):
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail=f"Invalid Credential"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Invalid Credential"
         )
 
     access_token = security.create_access_token(data={"user_id": user_id})

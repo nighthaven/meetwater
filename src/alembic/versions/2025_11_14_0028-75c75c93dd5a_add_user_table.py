@@ -1,7 +1,7 @@
 """add_user_table
 
 Revision ID: 75c75c93dd5a
-Revises: 
+Revises:
 Create Date: 2025-11-14 00:28:20.087805
 
 """
@@ -9,7 +9,6 @@ Create Date: 2025-11-14 00:28:20.087805
 from typing import Sequence, Union
 
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import UUID
 
 from alembic import op
 

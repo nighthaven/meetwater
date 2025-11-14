@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Any, Dict
+from typing import Any, Dict, cast
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -24,10 +24,10 @@ class Security:
         self.pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
     def hash_password(self, password: str) -> str:
-        return self.pwd_context.hash(password)
+        return cast(str, self.pwd_context.hash(password))
 
     def verify_password(self, plain_password: str, hashed_password: str | None) -> bool:
-        return self.pwd_context.verify(plain_password, hashed_password)
+        return cast(bool, self.pwd_context.verify(plain_password, hashed_password))
 
     @staticmethod
     def create_access_token(data: Dict[str, Any]):
@@ -57,7 +57,7 @@ class Security:
     ):
         credential_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Couldn't validate credential",
+            detail="Couldn't validate credential",
             headers={"WWW-Authenticate": "Bearer"},
         )
         token_data: TokenData = self.verify_access_token(token, credential_exception)

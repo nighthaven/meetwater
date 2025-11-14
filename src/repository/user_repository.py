@@ -17,7 +17,7 @@ class UserRepository:
             self.db.add(user)
             self.db.commit()
             self.db.refresh(user)
-        except Exception as e:
+        except Exception:
             self.db.rollback()
             raise UnexpectedException(
                 "une erreur inattendu est arrivé, réessayez, si le problème persiste, n'hésitez pas à nous contacter"
