@@ -44,10 +44,10 @@ class Security:
     def verify_access_token(token: str, credential_exception):
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORYTHM])
-            id = payload.get("user_id")
-            if id is None:
+            user_id = payload.get("user_id")
+            if user_id is None:
                 raise credential_exception
-            token_data = TokenData(id=id)
+            token_data = TokenData(id=user_id)
         except JWTError:
             raise credential_exception
         return token_data

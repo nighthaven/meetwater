@@ -20,4 +20,10 @@ dependencies = [
     "isort>=7.0.0",
     "sqlalchemy2-stubs>=0.0.2a38",
     "pre-commit>=4.4.0",
+    "pytest>=9.0.1",
+    "pytest-factoryboy>=2.8.1",
+    "httpx>=0.28.1",
 ]
+[tool.pytest.ini_options]
+pythonpath = "src"
+env = ["ENV=test"]

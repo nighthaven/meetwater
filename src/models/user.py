@@ -11,16 +11,10 @@ from sqlalchemy import (
     func,
 )
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.ext.hybrid import hybrid_method
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped  # type: ignore[attr-defined]
-from sqlalchemy.orm import mapped_column, validates
+from sqlalchemy.orm import mapped_column
 
-from src.exceptions.user.user_under_minimum_age_exception import (
-    UserUnderMinimumAgeException,
-)
-from src.exceptions.user.user_without_representative_exception import (
-    UserWithoutRepresentativeException,
-)
 from src.models import Base
 from src.models.enums.user_level import UserLevel
 
@@ -59,27 +53,7 @@ class User(Base):
         ),
     )
 
-    @validates("birth_date", "representative")
-    def validate_user(self, key, value):
-        legal_adult_age = 18
-        minimum_age = 5
-        birth_date = self.birth_date if key != "birth_date" else value
-        representative = self.representative if key != "representative" else value
-        year_age = datetime.now().year - birth_date.year
-
-        if key == "birth_date" and (year_age < minimum_age):
-            raise UserUnderMinimumAgeException(
-                f"User must be over {minimum_age} years old."
-            )
-        if year_age < legal_adult_age:
-            if not representative or not representative.strip():
-                raise UserWithoutRepresentativeException(
-                    f"User is under {legal_adult_age} and has no representative."
-                )
-
-        return value
-
-    @hybrid_method
+    @hybrid_property
     def has_representative_if_not_adult(self, legal_adult_age: int = 18) -> bool:
         return datetime.now().year - self.birth_date.year < legal_adult_age and bool(
             self.representative and self.representative.strip()
