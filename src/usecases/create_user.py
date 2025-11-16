@@ -11,8 +11,5 @@ def create_user(
     new_user.password = security.hash_password(user_query.password)
     new_user.first_name = user_query.first_name
     new_user.last_name = user_query.last_name
-    new_user.birth_date = user_query.birth_date
-    new_user.level = user_query.level
-    new_user.representative = user_query.representative
     user_repository.save(new_user)
     return
