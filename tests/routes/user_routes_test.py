@@ -11,8 +11,6 @@ class TestCreateUser:
                 "first_name": "Tom",
                 "last_name": "Bombadil",
                 "birth_date": date(2000, 1, 16).isoformat(),
-                "level": "Intermédiaire",
-                "representative": None,
             },
         )
         assert response.status_code == 201

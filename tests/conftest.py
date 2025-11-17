@@ -9,6 +9,7 @@ from alembic.config import Config
 
 from src.repository.user_repository import UserRepository
 from src.services.security import Security
+from tests.fixtures.swimmer_factory import SwimmerFactory, SwimmerUserLinkFactory
 from tests.fixtures.user_factory import UserFactory
 import os
 
@@ -49,6 +50,8 @@ def client(db_session):
     command.upgrade(alembic_cfg, "head")
 
     UserFactory._meta.sqlalchemy_session = db_session
+    SwimmerFactory._meta.sqlalchemy_session = db_session
+    SwimmerUserLinkFactory._meta.sqlalchemy_session = db_session
 
     yield TestClient(app)
 

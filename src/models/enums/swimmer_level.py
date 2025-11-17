@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class UserLevel(Enum):
+class SwimmerLevel(Enum):
     AQUAPHOBIC = "Aquaphobic"
     BEGINNER = "Débutant"
     INTERMEDIATE = "Intermédiaire"

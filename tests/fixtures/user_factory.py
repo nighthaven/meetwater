@@ -14,3 +14,4 @@ class UserFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore[misc]
     password = factory.LazyFunction(lambda: Security().hash_password("pass"))  # type: ignore[no-untyped-call]
     first_name = factory.Faker("first_name")
     last_name = factory.Faker("last_name")
+    birth_date = factory.Faker("date_of_birth", minimum_age=18, maximum_age=90)
