@@ -1,4 +1,4 @@
-from src.usecases.get_user import get_user_by_id
+from src.usecases.get_user import get_user_by_id_usecase
 from tests.fixtures.swimmer_factory import SwimmerFactory
 from tests.fixtures.user_factory import UserFactory
 
@@ -10,7 +10,7 @@ class TestGetUserById:
 
         db_session.commit()
 
-        response = get_user_by_id(user.id, user_repo)
+        response = get_user_by_id_usecase(user.id, user_repo)
 
         assert response.first_name == user.first_name
         assert response.last_name == user.last_name

@@ -3,7 +3,7 @@ from src.repository.user_repository import UserRepository
 from src.services.security import Security
 
 
-def create_user(
+def create_user_usecase(
     user_query, user_repository: UserRepository, security: Security
 ) -> None:
     new_user = User()

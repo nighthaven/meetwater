@@ -7,6 +7,8 @@ from sqlalchemy.orm import Session
 
 from src.exceptions.unexpected_exception import UnexpectedException
 from src.models import get_db
+from src.models.link.swimmer_user_link import SwimmerUserLink
+from src.models.swimmer import Swimmer
 from src.models.user import User
 
 
@@ -47,3 +49,24 @@ class UserRepository:
             raise UnexpectedException(
                 "Une erreur inattendu est arrivé, réessayez, si le problème persiste, n'hésitez pas à nous contacter"
             )
+
+    def save_swimmer_by_user_id(self, swimmer: Swimmer, link: SwimmerUserLink):
+        try:
+            self.db.add(swimmer)
+            self.db.add(link)
+            self.db.commit()
+            self.db.refresh(swimmer)
+            self.db.refresh(link)
+        except Exception:
+            self.db.rollback()
+            raise UnexpectedException(
+                "Une erreur inattendu est arrivé, réessayez, si le problème persiste, n'hésitez pas à nous contacter"
+            )
+
+    def get_swimmer_by_user_id(self, user_id: UUID) -> List[Swimmer]:
+        return (
+            self.db.query(Swimmer)
+            .join(SwimmerUserLink, SwimmerUserLink.swimmer_id == Swimmer.id)
+            .filter(SwimmerUserLink.user_id == user_id)
+            .all()
+        )

@@ -37,7 +37,11 @@ app.dependency_overrides[get_db] = override_get_db
 def db_session():
     """Fixture qui crée une session de base de données pour les tests."""
     session = TestingSessionLocal()
+    metadata.reflect(bind=engine)
+    metadata.drop_all(bind=engine)
+    metadata.create_all(bind=engine)
     yield session
+    session.rollback()
     session.close()
 
 
@@ -58,6 +62,13 @@ def client(db_session):
     for table in reversed(metadata.sorted_tables):
         db_session.execute(table.delete())
     db_session.commit()
+
+
+@pytest.fixture(autouse=True)
+def configure_factories(db_session):
+    UserFactory._meta.sqlalchemy_session = db_session
+    SwimmerFactory._meta.sqlalchemy_session = db_session
+    SwimmerUserLinkFactory._meta.sqlalchemy_session = db_session
 
 
 # injection dépendance :

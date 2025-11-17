@@ -6,7 +6,7 @@ from src.routes.dto.swimmer.swimmer_response_model import SwimmerResponseModel
 from src.routes.dto.user.user_response_model import UserResponseModel
 
 
-def get_user_by_id(
+def get_user_by_id_usecase(
     user_id: UUID,
     user_repository: UserRepository,
 ) -> UserResponseModel:

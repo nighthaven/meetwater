@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from src.routes.dto.user.user_query import UserQuery
-from src.usecases.create_user import create_user
+from src.usecases.create_user import create_user_usecase
 from datetime import date
 
 
@@ -15,7 +15,7 @@ class TestCreateUser:
             last_name="Bombadil",
             birth_date=birth_date,
         )
-        create_user(payload, user_repo, security)
+        create_user_usecase(payload, user_repo, security)
 
         query_user = user_repo.get()
         assert query_user[0].email == "hello123@gmail.com"
