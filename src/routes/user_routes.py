@@ -17,12 +17,14 @@ from src.repository.swimmer_repository import SwimmerRepository
 from src.repository.user_repository import UserRepository
 from src.routes.dto.booking.booking_query import BookingQuery
 from src.routes.dto.swimmer.swimmer_query import SwimmerQuery
+from src.routes.dto.user.user_booking_response_model import UserBookingResponseModel
 from src.routes.dto.user.user_query import UserQuery
 from src.routes.dto.user.user_response_model import UserResponseModel
 from src.services.security import Security
 from src.usecases.create_bookings import create_bookings_usecase
 from src.usecases.create_swimmer import create_swimmer_by_user_id
 from src.usecases.create_user import create_user_usecase
+from src.usecases.get_bookings import get_bookings_by_user_id
 from src.usecases.get_user import get_user_by_id_usecase
 
 router = APIRouter(
@@ -64,7 +66,8 @@ def get_user_by_id(
     user_repository: Annotated[UserRepository, Depends(UserRepository)],
 ):
     try:
-        return get_user_by_id_usecase(user_id=user_id, user_repository=user_repository)
+        result = get_user_by_id_usecase(user_id, user_repository)
+        return UserResponseModel(**result)
     except UserNotFoundException:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
@@ -105,4 +108,28 @@ def create_booking(
     except BookingAlreadyTakenForSwimmerException:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="booking already taken"
+        )
+
+
+@router.get(
+    "/{user_id}/bookings",
+    status_code=status.HTTP_200_OK,
+    response_model=UserBookingResponseModel,
+)
+def get_bookings(
+    user_id: UUID,
+    user_repository: Annotated[UserRepository, Depends(UserRepository)],
+):
+    try:
+        data = get_bookings_by_user_id(user_id, user_repository)
+        user = data["user"]
+        return UserBookingResponseModel(
+            user_first_name=user["first_name"],
+            user_last_name=user["last_name"],
+            user_email=user["email"],
+            bookings=data["bookings"],
+        )
+    except UserNotFoundException:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )

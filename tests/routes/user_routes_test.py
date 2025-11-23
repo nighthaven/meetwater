@@ -1,6 +1,7 @@
 from datetime import date, datetime, timedelta, timezone
 
 from src.models.enums.swimmer_level import SwimmerLevel
+from tests.fixtures.booking_factory import BookingFactory
 from tests.fixtures.swimmer_factory import SwimmerFactory
 from tests.fixtures.user_factory import UserFactory
 
@@ -70,3 +71,45 @@ class TestCreateBooking:
         )
 
         assert response.status_code == 201
+
+
+class TestGetBooking:
+    def test_get_booking(self, client):
+        user = UserFactory()
+        swimmer = SwimmerFactory(link_user=user)
+        booking_1 = BookingFactory(swimmers=swimmer)
+
+        response = client.get(
+            f"/users/{user.id}/bookings",
+        )
+
+        assert response.status_code == 200
+        assert response.json()["user_first_name"] == user.first_name
+        assert response.json()["user_last_name"] == user.last_name
+        assert response.json()["user_email"] == user.email
+        assert (
+            response.json()["bookings"][0]["booked_at"]
+            == booking_1.booked_at.isoformat()
+        )
+        assert (
+            response.json()["bookings"][0]["created_at"]
+            == booking_1.created_at.isoformat()
+        )
+        assert response.json()["bookings"][0]["time_slot"] == booking_1.time_slot
+        assert response.json()["bookings"][0]["status"] == booking_1.status
+        assert (
+            response.json()["bookings"][0]["swimmers"][0]["first_name"]
+            == swimmer.first_name
+        )
+        assert (
+            response.json()["bookings"][0]["swimmers"][0]["last_name"]
+            == swimmer.last_name
+        )
+        assert (
+            response.json()["bookings"][0]["swimmers"][0]["birth_date"]
+            == swimmer.birth_date.isoformat()
+        )
+        assert (
+            response.json()["bookings"][0]["swimmers"][0]["level"]
+            == swimmer.level.value
+        )

@@ -12,10 +12,10 @@ class TestGetUserById:
 
         response = get_user_by_id_usecase(user.id, user_repo)
 
-        assert response.first_name == user.first_name
-        assert response.last_name == user.last_name
-        assert response.email == user.email
-        assert response.swimmers[0].first_name == swimmer.first_name
-        assert response.swimmers[0].last_name == swimmer.last_name
-        assert response.swimmers[0].birth_date == swimmer.birth_date
-        assert response.swimmers[0].level == swimmer.level
+        assert response["first_name"] == user.first_name
+        assert response["last_name"] == user.last_name
+        assert response["email"] == user.email
+        assert response["swimmers"][0]["first_name"] == swimmer.first_name
+        assert response["swimmers"][0]["last_name"] == swimmer.last_name
+        assert response["swimmers"][0]["birth_date"] == swimmer.birth_date
+        assert response["swimmers"][0]["level"] == swimmer.level

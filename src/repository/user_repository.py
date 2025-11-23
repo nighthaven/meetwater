@@ -7,7 +7,9 @@ from sqlalchemy.orm import Session
 
 from src.exceptions.unexpected_exception import UnexpectedException
 from src.models import get_db
+from src.models.booking import Booking
 from src.models.link.swimmer_user_link import SwimmerUserLink
+from src.models.link.swimmers_bookings_link import SwimmerBookingLink
 from src.models.swimmer import Swimmer
 from src.models.user import User
 
@@ -70,3 +72,22 @@ class UserRepository:
             .filter(SwimmerUserLink.user_id == user_id)
             .all()
         )
+
+    def get_bookings(self, user_id: UUID) -> List[Booking]:
+        try:
+            bookings = (
+                self.db.query(Booking)
+                .join(Booking.swimmers)
+                .join(SwimmerBookingLink.swimmer)
+                .join(Swimmer.user_links)
+                .filter(SwimmerUserLink.user_id == user_id)
+                .options(
+                    joinedload(Booking.swimmers).joinedload(SwimmerBookingLink.swimmer)
+                )
+                .all()
+            )
+            return bookings
+
+        except Exception:
+            self.db.rollback()
+            raise UnexpectedException("Une erreur inattendu est arrivé...")

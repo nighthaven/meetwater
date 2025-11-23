@@ -29,7 +29,7 @@ class BookingFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore[mi
         if extracted:
             swimmers = extracted if isinstance(extracted, list) else [extracted]
         else:
-            swimmers = [SwimmerFactory()]
+            return
 
         for swimmer in swimmers:
             SwimmerBookingLinkFactory(swimmer=swimmer, booking=self)

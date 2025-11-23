@@ -2,8 +2,6 @@ from src.models.link.swimmer_user_link import SwimmerUserLink
 from src.models.swimmer import Swimmer
 import factory
 
-from tests.fixtures.user_factory import UserFactory
-
 
 class SwimmerFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore[misc]
     class Meta:
@@ -22,7 +20,10 @@ class SwimmerFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore[mi
         if not create:
             return
 
-        user = extracted or UserFactory()
+        if extracted:
+            user = extracted
+        else:
+            return
         link = SwimmerUserLinkFactory(user=user, swimmer=self)
         self.user_links.append(link)
 
@@ -33,5 +34,5 @@ class SwimmerUserLinkFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: i
         sqlalchemy_session = None
         sqlalchemy_session_persistence = "commit"
 
-    user = factory.SubFactory(UserFactory)
-    swimmer = factory.SubFactory(SwimmerFactory)
+    user = None
+    swimmer = None
