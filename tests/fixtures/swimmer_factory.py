@@ -19,6 +19,8 @@ class SwimmerFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore[mi
 
     @factory.post_generation
     def link_user(self, create, extracted, **kwargs):
+        if not create:
+            return
 
         user = extracted or UserFactory()
         link = SwimmerUserLinkFactory(user=user, swimmer=self)

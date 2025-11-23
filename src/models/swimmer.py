@@ -16,6 +16,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship  # type: ignore[a
 
 from src.models import Base
 from src.models.enums.swimmer_level import SwimmerLevel
+from src.models.link.swimmers_bookings_link import SwimmerBookingLink
 
 if TYPE_CHECKING:
     from src.models.link.swimmer_user_link import SwimmerUserLink
@@ -30,7 +31,7 @@ class Swimmer(Base):
     last_name: Mapped[str] = mapped_column(String, nullable=False)
     birth_date: Mapped[date] = mapped_column(Date, nullable=False)
     level: Mapped[SwimmerLevel] = mapped_column(
-        Enum(SwimmerLevel, name="userlevel"),
+        Enum(SwimmerLevel, name="swimmerlevel"),
         nullable=False,
         default=SwimmerLevel.INTERMEDIATE,
     )
@@ -41,6 +42,9 @@ class Swimmer(Base):
     )
     user_links: Mapped[List["SwimmerUserLink"]] = relationship(
         "SwimmerUserLink", back_populates="swimmer", cascade="all, delete-orphan"
+    )
+    bookings: Mapped[List["SwimmerBookingLink"]] = relationship(
+        "SwimmerBookingLink", back_populates="swimmer", cascade="all, delete-orphan"
     )
 
     __table_args__ = (

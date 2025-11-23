@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 
 from src.models.enums.swimmer_level import SwimmerLevel
 from tests.fixtures.swimmer_factory import SwimmerFactory
@@ -51,3 +51,22 @@ class TestGetUser:
         assert response.json()["swimmers"][0]["last_name"] == swimmer.last_name
         assert response.json()["swimmers"][0]["birth_date"] == str(swimmer.birth_date)
         assert response.json()["swimmers"][0]["level"] == swimmer.level.value
+
+
+class TestCreateBooking:
+    def test_create_booking(self, client):
+        user = UserFactory()
+        swimmer_1 = SwimmerFactory(link_user=user)
+        SwimmerFactory(link_user=user)
+        datetime_booked_at = datetime.now(timezone.utc) + timedelta(days=2)
+
+        payload = {
+            "booked_at": str(datetime_booked_at),
+            "swimmers_ids": [str(swimmer_1.id)],
+        }
+        response = client.post(
+            f"/users/{user.id}/bookings",
+            json=payload,
+        )
+
+        assert response.status_code == 201

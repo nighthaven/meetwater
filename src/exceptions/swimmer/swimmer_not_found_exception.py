@@ -1,0 +1,2 @@
+class SwimmerNotFoundException(Exception):
+    pass

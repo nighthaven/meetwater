@@ -7,9 +7,12 @@ from sqlalchemy.orm import sessionmaker
 from alembic import command
 from alembic.config import Config
 
+from src.repository.booking_repository import BookingRepository
+from src.repository.swimmer_repository import SwimmerRepository
 from src.repository.user_repository import UserRepository
 from src.services.security import Security
 from tests.fixtures.swimmer_factory import SwimmerFactory, SwimmerUserLinkFactory
+from tests.fixtures.booking_factory import BookingFactory, SwimmerBookingLinkFactory
 from tests.fixtures.user_factory import UserFactory
 import os
 
@@ -56,6 +59,8 @@ def client(db_session):
     UserFactory._meta.sqlalchemy_session = db_session
     SwimmerFactory._meta.sqlalchemy_session = db_session
     SwimmerUserLinkFactory._meta.sqlalchemy_session = db_session
+    BookingFactory._meta.sqlalchemy_session = db_session
+    SwimmerBookingLinkFactory._meta.sqlalchemy_session = db_session
 
     yield TestClient(app)
 
@@ -69,6 +74,8 @@ def configure_factories(db_session):
     UserFactory._meta.sqlalchemy_session = db_session
     SwimmerFactory._meta.sqlalchemy_session = db_session
     SwimmerUserLinkFactory._meta.sqlalchemy_session = db_session
+    BookingFactory._meta.sqlalchemy_session = db_session
+    SwimmerBookingLinkFactory._meta.sqlalchemy_session = db_session
 
 
 # injection dépendance :
@@ -77,6 +84,16 @@ def configure_factories(db_session):
 @pytest.fixture
 def user_repo(db_session):
     return UserRepository(db_session)
+
+
+@pytest.fixture
+def swimmer_repo(db_session):
+    return SwimmerRepository(db_session)
+
+
+@pytest.fixture
+def booking_repo(db_session):
+    return BookingRepository(db_session)
 
 
 @pytest.fixture

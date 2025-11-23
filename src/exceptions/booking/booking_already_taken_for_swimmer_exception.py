@@ -1,0 +1,2 @@
+class BookingAlreadyTakenForSwimmerException(Exception):
+    pass

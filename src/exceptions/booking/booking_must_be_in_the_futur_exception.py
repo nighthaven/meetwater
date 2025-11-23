@@ -1,0 +1,2 @@
+class BookingMustBeInTheFutureException(Exception):
+    pass

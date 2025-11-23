@@ -1,0 +1,2 @@
+class UserNotLinkedToSwimmerException(Exception):
+    pass
