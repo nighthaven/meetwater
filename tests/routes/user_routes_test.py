@@ -49,6 +49,7 @@ class TestGetUser:
         assert response.json()["first_name"] == user.first_name
         assert response.json()["last_name"] == user.last_name
         assert response.json()["email"] == user.email
+        assert response.json()["is_coach"] == user.is_coach
         assert response.json()["swimmers"][0]["first_name"] == swimmer.first_name
         assert response.json()["swimmers"][0]["last_name"] == swimmer.last_name
         assert response.json()["swimmers"][0]["birth_date"] == str(swimmer.birth_date)

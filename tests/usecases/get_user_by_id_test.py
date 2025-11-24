@@ -15,6 +15,7 @@ class TestGetUserById:
         assert response["first_name"] == user.first_name
         assert response["last_name"] == user.last_name
         assert response["email"] == user.email
+        assert response["is_coach"] == user.is_coach
         assert response["swimmers"][0]["first_name"] == swimmer.first_name
         assert response["swimmers"][0]["last_name"] == swimmer.last_name
         assert response["swimmers"][0]["birth_date"] == swimmer.birth_date

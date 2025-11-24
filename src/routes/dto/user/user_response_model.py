@@ -9,3 +9,4 @@ class UserResponseModel(BaseModel):
     last_name: str
     email: str
     swimmers: List[SwimmerResponseModel]
+    is_coach: bool

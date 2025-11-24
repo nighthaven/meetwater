@@ -44,6 +44,7 @@ class UserRepository:
                 self.db.query(User)
                 .filter_by(id=user_id)
                 .options(joinedload(User.swimmers))
+                .options(joinedload(User.swimming_coach))
                 .one_or_none()
             )
         except Exception:

@@ -8,6 +8,7 @@ from sqlalchemy import (
     func,
     Date,
     CheckConstraint,
+    select,
 )
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.dialects.postgresql import UUID
@@ -68,3 +69,13 @@ class User(Base):
 
     def full_name(self) -> str:
         return f"{self.first_name} {self.last_name}".strip()
+
+    @hybrid_property
+    def is_coach(self) -> bool:
+        return self.swimming_coach is not None
+
+    @is_coach.expression  # type: ignore[no-redef]
+    def is_coach(cls):
+        from src.models.swimming_coach import SwimmingCoach
+
+        return select(SwimmingCoach.id).where(SwimmingCoach.user_id == cls.id).exists()
