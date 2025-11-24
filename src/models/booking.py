@@ -1,5 +1,5 @@
 import uuid
-from typing import List
+from typing import List, TYPE_CHECKING
 from datetime import datetime, timezone
 
 from src.exceptions.booking.booking_must_be_in_the_futur_exception import (
@@ -8,12 +8,15 @@ from src.exceptions.booking.booking_must_be_in_the_futur_exception import (
 from src.models.enums.booking_status import BookingStatus
 from sqlalchemy.orm import validates
 
-from sqlalchemy import DateTime, Enum, Integer, CheckConstraint
+from sqlalchemy import DateTime, Enum, Integer, CheckConstraint, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models import Base
 from src.models.link.swimmers_bookings_link import SwimmerBookingLink
+
+if TYPE_CHECKING:
+    from src.models.swimming_coach import SwimmingCoach
 
 
 class Booking(Base):
@@ -34,6 +37,12 @@ class Booking(Base):
     )
     swimmers: Mapped[List["SwimmerBookingLink"]] = relationship(
         "SwimmerBookingLink", back_populates="booking", cascade="all, delete-orphan"
+    )
+    swimming_coach_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("swimming_coach.id"), nullable=False
+    )
+    swimming_coach: Mapped["SwimmingCoach"] = relationship(
+        "SwimmingCoach", back_populates="bookings"
     )
 
     __table_args__ = (

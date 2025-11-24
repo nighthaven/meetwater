@@ -3,6 +3,7 @@ from datetime import date, datetime, timedelta, timezone
 from src.models.enums.swimmer_level import SwimmerLevel
 from tests.fixtures.booking_factory import BookingFactory
 from tests.fixtures.swimmer_factory import SwimmerFactory
+from tests.fixtures.swimming_coach_factory import SwimmingCoachFactory
 from tests.fixtures.user_factory import UserFactory
 
 
@@ -58,12 +59,14 @@ class TestCreateBooking:
     def test_create_booking(self, client):
         user = UserFactory()
         swimmer_1 = SwimmerFactory(link_user=user)
+        swimming_coach = SwimmingCoachFactory(user=user)
         SwimmerFactory(link_user=user)
         datetime_booked_at = datetime.now(timezone.utc) + timedelta(days=2)
 
         payload = {
             "booked_at": str(datetime_booked_at),
             "swimmers_ids": [str(swimmer_1.id)],
+            "swimming_coach_id": str(swimming_coach.id),
         }
         response = client.post(
             f"/users/{user.id}/bookings",

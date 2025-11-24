@@ -1,5 +1,5 @@
 import uuid
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 from datetime import datetime, date
 
 from sqlalchemy import (
@@ -15,6 +15,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship  # type: ignore[a
 
 from src.models import Base
 from src.models.link.swimmer_user_link import SwimmerUserLink
+from src.models.swimming_coach import SwimmingCoach
 
 if TYPE_CHECKING:
     from src.models.link.swimmer_user_link import SwimmerUserLink
@@ -31,6 +32,12 @@ class User(Base):
     first_name: Mapped[str] = mapped_column(String, nullable=False)
     last_name: Mapped[str] = mapped_column(String, nullable=False)
     birth_date: Mapped[date] = mapped_column(Date, nullable=False)
+    swimming_coach: Mapped[Optional["SwimmingCoach"]] = relationship(
+        "SwimmingCoach",
+        uselist=False,
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(),
         server_default=func.now(),

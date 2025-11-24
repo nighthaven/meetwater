@@ -14,6 +14,7 @@ def install_models() -> None:
     from src.models.link import swimmer_user_link
     from src.models import booking
     from src.models.link import swimmers_bookings_link
+    from src.models import swimming_coach
 
 
 SQLALCHEMY_DATABASE_URL = f"postgresql://postgres:{settings.database_password}@{settings.database_hostname}:{settings.database_port}/{settings.database_name}"

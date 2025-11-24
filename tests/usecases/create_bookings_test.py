@@ -17,22 +17,29 @@ from src.routes.dto.booking.booking_query import BookingQuery
 from src.usecases.create_bookings import create_bookings_usecase
 from tests.fixtures.booking_factory import BookingFactory
 from tests.fixtures.swimmer_factory import SwimmerFactory
+from tests.fixtures.swimming_coach_factory import SwimmingCoachFactory
 from tests.fixtures.user_factory import UserFactory
 from datetime import datetime, timedelta, timezone
 
 
 class TestCreateBookings:
-    def test_create_bookings_success(self, user_repo, swimmer_repo, booking_repo):
+    def test_create_bookings_success(
+        self, user_repo, swimmer_repo, booking_repo, swimming_coach_repo
+    ):
         user = UserFactory()
         swimmer = SwimmerFactory(link_user=user)
+        swimming_coach = SwimmingCoachFactory()
 
         datebooked = datetime.now(timezone.utc) + timedelta(days=2)
         payload = BookingQuery(
             booked_at=datebooked,
             swimmers_ids=[swimmer.id],
+            swimming_coach_id=swimming_coach.id,
         )
 
-        create_bookings_usecase(user.id, payload, user_repo, swimmer_repo, booking_repo)
+        create_bookings_usecase(
+            user.id, payload, user_repo, swimmer_repo, booking_repo, swimming_coach_repo
+        )
 
         query_bookings = booking_repo.get_all()
 
@@ -48,14 +55,18 @@ class TestCreateBookings:
         assert query_bookings[0].swimmers[0].swimmer.birth_date == swimmer.birth_date
         assert query_bookings[0].status == BookingStatus.ACCEPTED
 
-    def test_create_booking_user_not_found(self, user_repo, swimmer_repo, booking_repo):
+    def test_create_booking_user_not_found(
+        self, user_repo, swimmer_repo, booking_repo, swimming_coach_repo
+    ):
         user = UserFactory()
         swimmer = SwimmerFactory(link_user=user)
+        swimming_coach = SwimmingCoachFactory(user=user)
 
         datebooked = datetime.now() + timedelta(days=2)
         payload = BookingQuery(
             booked_at=datebooked,
             swimmers_ids=[swimmer.id],
+            swimming_coach_id=swimming_coach.id,
         )
 
         with pytest.raises(UserNotFoundException):
@@ -65,6 +76,7 @@ class TestCreateBookings:
                 user_repo,
                 swimmer_repo,
                 booking_repo,
+                swimming_coach_repo,
             )
 
     @pytest.mark.parametrize(
@@ -75,9 +87,10 @@ class TestCreateBookings:
         ],
     )
     def test_create_booking_swimmer_not_found(
-        self, user_repo, swimmer_repo, booking_repo, create_swimmer
+        self, user_repo, swimmer_repo, booking_repo, create_swimmer, swimming_coach_repo
     ):
         user = UserFactory()
+        swimming_coach = SwimmingCoachFactory(user=user)
         if create_swimmer:
             SwimmerFactory(link_user=user)
 
@@ -87,29 +100,42 @@ class TestCreateBookings:
             swimmers_ids=(
                 [] if create_swimmer else [UUID("27dbb4e3-5ef6-4777-8811-daa9927e8923")]
             ),
+            swimming_coach_id=swimming_coach.id,
         )
 
         with pytest.raises(SwimmerNotFoundException):
             create_bookings_usecase(
-                user.id, payload, user_repo, swimmer_repo, booking_repo
+                user.id,
+                payload,
+                user_repo,
+                swimmer_repo,
+                booking_repo,
+                swimming_coach_repo,
             )
 
     def test_create_booking_swimmer_not_linked_to_user(
-        self, user_repo, swimmer_repo, booking_repo
+        self, user_repo, swimmer_repo, booking_repo, swimming_coach_repo
     ):
         user = UserFactory()
         SwimmerFactory(link_user=user)
+        swimming_coach = SwimmingCoachFactory()
         swimmer_not_linked = SwimmerFactory()
 
         datebooked = datetime.now() + timedelta(days=2)
         payload = BookingQuery(
             booked_at=datebooked,
             swimmers_ids=[swimmer_not_linked.id],
+            swimming_coach_id=swimming_coach.id,
         )
 
         with pytest.raises(UserNotLinkedToSwimmerException):
             create_bookings_usecase(
-                user.id, payload, user_repo, swimmer_repo, booking_repo
+                user.id,
+                payload,
+                user_repo,
+                swimmer_repo,
+                booking_repo,
+                swimming_coach_repo,
             )
 
     @pytest.mark.parametrize(
@@ -120,10 +146,11 @@ class TestCreateBookings:
         ],
     )
     def test_create_booking_already_booked_for_swimmer(
-        self, user_repo, swimmer_repo, booking_repo, offset_minutes
+        self, user_repo, swimmer_repo, booking_repo, offset_minutes, swimming_coach_repo
     ):
         user = UserFactory()
         swimmer = SwimmerFactory(link_user=user)
+        swimming_coach = SwimmingCoachFactory(user=user)
         base_start = datetime.now(timezone.utc) + timedelta(days=2)
         BookingFactory(swimmers=[swimmer], booked_at=base_start)
 
@@ -132,23 +159,38 @@ class TestCreateBookings:
         payload = BookingQuery(
             booked_at=test_datetime,
             swimmers_ids=[swimmer.id],
+            swimming_coach_id=swimming_coach.id,
         )
         with pytest.raises(BookingAlreadyTakenForSwimmerException):
             create_bookings_usecase(
-                user.id, payload, user_repo, swimmer_repo, booking_repo
+                user.id,
+                payload,
+                user_repo,
+                swimmer_repo,
+                booking_repo,
+                swimming_coach_repo,
             )
 
-    def test_create_booking_in_the_past(self, user_repo, swimmer_repo, booking_repo):
+    def test_create_booking_in_the_past(
+        self, user_repo, swimmer_repo, booking_repo, swimming_coach_repo
+    ):
         user = UserFactory()
         swimmer = SwimmerFactory(link_user=user)
+        swimming_coach = SwimmingCoachFactory(user=user)
         datetime_booked_at = datetime.now(timezone.utc) - timedelta(days=2)
 
         payload = BookingQuery(
             booked_at=datetime_booked_at,
             swimmers_ids=[swimmer.id],
+            swimming_coach_id=swimming_coach.id,
         )
 
         with pytest.raises(BookingMustBeInTheFutureException):
             create_bookings_usecase(
-                user.id, payload, user_repo, swimmer_repo, booking_repo
+                user.id,
+                payload,
+                user_repo,
+                swimmer_repo,
+                booking_repo,
+                swimming_coach_repo,
             )

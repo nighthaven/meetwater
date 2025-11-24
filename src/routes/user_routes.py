@@ -14,6 +14,7 @@ from src.exceptions.user.user_not_linked_to_swimmer_exception import (
 )
 from src.repository.booking_repository import BookingRepository
 from src.repository.swimmer_repository import SwimmerRepository
+from src.repository.swimming_coach_repository import SwimmingCoachRepository
 from src.repository.user_repository import UserRepository
 from src.routes.dto.booking.booking_query import BookingQuery
 from src.routes.dto.swimmer.swimmer_query import SwimmerQuery
@@ -81,6 +82,9 @@ def create_booking(
     user_repository: Annotated[UserRepository, Depends(UserRepository)],
     swimmer_repository: Annotated[SwimmerRepository, Depends(SwimmerRepository)],
     booking_repository: Annotated[BookingRepository, Depends(BookingRepository)],
+    swimming_coach_repository: Annotated[
+        SwimmingCoachRepository, Depends(SwimmingCoachRepository)
+    ],
 ):
     try:
         create_bookings_usecase(
@@ -89,6 +93,7 @@ def create_booking(
             user_repository,
             swimmer_repository,
             booking_repository,
+            swimming_coach_repository,
         )
         return
     except UserNotFoundException:

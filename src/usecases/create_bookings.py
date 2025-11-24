@@ -6,14 +6,19 @@ from src.exceptions.booking.booking_already_taken_for_swimmer_exception import (
     BookingAlreadyTakenForSwimmerException,
 )
 from src.exceptions.swimmer.swimmer_not_found_exception import SwimmerNotFoundException
+from src.exceptions.swimming_coach.swimming_coach_not_found_exception import (
+    SwimmingCoachNotFoundException,
+)
 from src.exceptions.user.user_not_linked_to_swimmer_exception import (
     UserNotLinkedToSwimmerException,
 )
 from src.models.booking import Booking
 from src.models.link.swimmer_user_link import SwimmerUserLink
 from src.models.link.swimmers_bookings_link import SwimmerBookingLink
+from src.models.swimming_coach import SwimmingCoach
 from src.repository.booking_repository import BookingRepository
 from src.repository.swimmer_repository import SwimmerRepository
+from src.repository.swimming_coach_repository import SwimmingCoachRepository
 from src.repository.user_repository import UserRepository
 from src.routes.dto.booking.booking_query import BookingQuery
 from src.usecases.validations.swimmer_validations import validate_and_return_swimmer
@@ -26,6 +31,7 @@ def create_bookings_usecase(
     user_repository: UserRepository,
     swimmer_repository: SwimmerRepository,
     booking_repository: BookingRepository,
+    swimming_coach_repository: SwimmingCoachRepository,
 ) -> None:
     user = validate_and_return_user(user_id, user_repository)
     _validate_user_have_swimmers_and_query_contain_swimmer(
@@ -37,6 +43,9 @@ def create_bookings_usecase(
         booking_query.booked_at,
         swimmer_repository,
     )
+    coach = _validate_and_return_swimming_coach(
+        booking_query.swimming_coach_id, swimming_coach_repository
+    )
 
     new_booking = Booking()
     new_booking.booked_at = booking_query.booked_at
@@ -44,6 +53,7 @@ def create_bookings_usecase(
         SwimmerBookingLink(swimmer=swimmer, booking=new_booking)
         for swimmer in selected_swimmers
     ]
+    new_booking.swimming_coach = coach
 
     booking_repository.save(new_booking)
     return
@@ -94,3 +104,12 @@ def _validate_booking_not_taken_for_swimmer(
             raise BookingAlreadyTakenForSwimmerException(
                 "A booking already exist for this swimmer at this specific date and time"
             )
+
+
+def _validate_and_return_swimming_coach(
+    coach_id: UUID, swimming_coach_repository: SwimmingCoachRepository
+) -> SwimmingCoach:
+    coach = swimming_coach_repository.get(coach_id)
+    if not coach:
+        raise SwimmingCoachNotFoundException("coach not found")
+    return coach
