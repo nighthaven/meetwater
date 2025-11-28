@@ -1,9 +1,9 @@
 import factory
-from datetime import datetime, timedelta, timezone
 import random
+from datetime import timedelta, date
 
 from src.models.swimming_coach import SwimmingCoach
-from tests.fixtures.user_factory import UserFactory
+from src.services.security import Security
 
 
 class SwimmingCoachFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore[misc]
@@ -12,22 +12,23 @@ class SwimmingCoachFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ign
         sqlalchemy_session = None
         sqlalchemy_session_persistence = "commit"
 
-    user = factory.SubFactory(UserFactory)
-
+    first_name = factory.Faker("first_name")
+    last_name = factory.Faker("last_name")
     last_caep_certification_date = factory.LazyFunction(
-        lambda: datetime.now(timezone.utc).date()
-        - timedelta(days=random.randint(0, 5 * 365))
+        lambda: random_date_within_years(5)
     )
+
     last_pse_certification_date = factory.LazyFunction(
-        lambda: datetime.now(timezone.utc).date()
-        - timedelta(days=random.randint(0, 365))
+        lambda: random_date_within_years(1)
     )
 
-    @factory.post_generation
-    def bookings(self, create, extracted, **kwargs):
-        if not create or not extracted:
-            return
+    # information nécessaire pour la génération du user
+    email = factory.Faker("email")
+    password = factory.LazyFunction(lambda: Security().hash_password("pass"))
 
-        bookings = extracted if isinstance(extracted, list) else [extracted]
-        for booking in bookings:
-            booking.swimming_coach = self
+
+def random_date_within_years(years: int) -> date:
+    today = date.today()
+    start_date = today - timedelta(days=365 * years)
+    random_days = random.randint(0, (today - start_date).days)
+    return start_date + timedelta(days=random_days)

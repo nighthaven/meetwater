@@ -1,0 +1,2 @@
+class AdminNotFoundException(Exception):
+    pass

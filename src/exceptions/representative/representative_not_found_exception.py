@@ -1,0 +1,2 @@
+class RepresentativeNotFoundException(Exception):
+    pass
