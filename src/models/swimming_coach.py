@@ -1,14 +1,15 @@
 import uuid
-from typing import List, TYPE_CHECKING
+from datetime import datetime
+from typing import List
 from datetime import date, timedelta
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy import Date, CheckConstraint, ForeignKey
+from sqlalchemy import Date, CheckConstraint, ForeignKey, String, TIMESTAMP, func
 from src.models import Base
 from src.models.booking import Booking
 
-if TYPE_CHECKING:
-    from src.models.user import User
+
+from src.models.user import User
 
 
 class SwimmingCoach(Base):
@@ -17,20 +18,31 @@ class SwimmingCoach(Base):
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
+    first_name: Mapped[str] = mapped_column(String, nullable=False)
+    last_name: Mapped[str] = mapped_column(String, nullable=False)
 
     user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("users.id", ondelete="CASCADE"),
-        nullable=False,
-        unique=True,
+        UUID(as_uuid=True), ForeignKey("users.id"), unique=True
     )
-    user: Mapped["User"] = relationship("User", back_populates="swimming_coach")
+    user: Mapped["User"] = relationship(
+        "User", uselist=False, cascade="all, delete-orphan", single_parent=True
+    )
     bookings: Mapped[List["Booking"]] = relationship(
         "Booking", back_populates="swimming_coach", cascade="all, delete-orphan"
     )
 
     last_caep_certification_date: Mapped[date] = mapped_column(Date, nullable=True)
     last_pse_certification_date: Mapped[date] = mapped_column(Date, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(),
+        server_default=func.now(),
+        nullable=False,
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(),
+        server_default=func.now(),
+        nullable=False,
+    )
 
     __table_args__ = (
         CheckConstraint(
@@ -42,6 +54,22 @@ class SwimmingCoach(Base):
             name="check_last_pse_certification_date",
         ),
     )
+
+    def __init__(
+        self,
+        first_name: str,
+        last_name: str,
+        last_caep_certification_date: date,
+        last_pse_certification_date: date,
+        email: str,
+        password: str,
+    ):
+        self.first_name = first_name
+        self.last_name = last_name
+        self.last_caep_certification_date = last_caep_certification_date
+        self.last_pse_certification_date = last_pse_certification_date
+
+        self.user = User(email=email, password=password)  # type: ignore[call-arg]
 
     @validates("last_caep_certification_date")
     def validate_caep(self, key, value):

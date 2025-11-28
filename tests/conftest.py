@@ -1,19 +1,28 @@
 import pytest
 from fastapi.testclient import TestClient
 from src.main import app
-from src.models import get_db
+from src.models import get_db, Base
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker
 from alembic import command
 from alembic.config import Config
+from typing import Dict, Optional
 
-from src.repository.booking_repository import BookingRepository
-from src.repository.swimmer_repository import SwimmerRepository
-from src.repository.swimming_coach_repository import SwimmingCoachRepository
-from src.repository.user_repository import UserRepository
+from src.models.admin import Admin
+from src.models.pool_manager import PoolManager
+from src.models.representative import Representative
+from src.models.swimming_coach import SwimmingCoach
+from src.repositories.booking_repository import BookingRepository
+from src.repositories.pool_manager_repository import PoolManagerRepository
+from src.repositories.representative_repository import RepresentativeRepository
+from src.repositories.swimmer_repository import SwimmerRepository
+from src.repositories.swimming_coach_repository import SwimmingCoachRepository
 from src.services.security import Security
-from tests.fixtures.swimmer_factory import SwimmerFactory, SwimmerUserLinkFactory
-from tests.fixtures.booking_factory import BookingFactory, SwimmerBookingLinkFactory
+from tests.fixtures.admin_factory import AdminFactory
+from tests.fixtures.booking_factory import BookingFactory, SwimmerBookingFactory
+from tests.fixtures.pool_manager_factory import PoolManagerFactory
+from tests.fixtures.representative_factory import RepresentativeFactory
+from tests.fixtures.swimmer_factory import SwimmerFactory, SwimmerRepresentativeFactory
 from tests.fixtures.swimming_coach_factory import SwimmingCoachFactory
 from tests.fixtures.user_factory import UserFactory
 import os
@@ -41,10 +50,9 @@ app.dependency_overrides[get_db] = override_get_db
 @pytest.fixture
 def db_session():
     """Fixture qui crée une session de base de données pour les tests."""
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
     session = TestingSessionLocal()
-    metadata.reflect(bind=engine)
-    metadata.drop_all(bind=engine)
-    metadata.create_all(bind=engine)
     yield session
     session.rollback()
     session.close()
@@ -59,10 +67,13 @@ def client(db_session):
     command.upgrade(alembic_cfg, "head")
 
     UserFactory._meta.sqlalchemy_session = db_session
+    RepresentativeFactory._meta.sqlalchemy_session = db_session
     SwimmerFactory._meta.sqlalchemy_session = db_session
-    SwimmerUserLinkFactory._meta.sqlalchemy_session = db_session
+    SwimmerRepresentativeFactory._meta.sqlalchemy_session = db_session
     BookingFactory._meta.sqlalchemy_session = db_session
-    SwimmerBookingLinkFactory._meta.sqlalchemy_session = db_session
+    SwimmerBookingFactory._meta.sqlalchemy_session = db_session
+    AdminFactory._meta.sqlalchemy_session = db_session
+    PoolManagerFactory._meta.sqlalchemy_session = db_session
     SwimmingCoachFactory._meta.sqlalchemy_session = db_session
 
     yield TestClient(app)
@@ -75,10 +86,13 @@ def client(db_session):
 @pytest.fixture(autouse=True)
 def configure_factories(db_session):
     UserFactory._meta.sqlalchemy_session = db_session
+    RepresentativeFactory._meta.sqlalchemy_session = db_session
     SwimmerFactory._meta.sqlalchemy_session = db_session
-    SwimmerUserLinkFactory._meta.sqlalchemy_session = db_session
+    SwimmerRepresentativeFactory._meta.sqlalchemy_session = db_session
     BookingFactory._meta.sqlalchemy_session = db_session
-    SwimmerBookingLinkFactory._meta.sqlalchemy_session = db_session
+    SwimmerBookingFactory._meta.sqlalchemy_session = db_session
+    AdminFactory._meta.sqlalchemy_session = db_session
+    PoolManagerFactory._meta.sqlalchemy_session = db_session
     SwimmingCoachFactory._meta.sqlalchemy_session = db_session
 
 
@@ -86,8 +100,8 @@ def configure_factories(db_session):
 
 
 @pytest.fixture
-def user_repo(db_session):
-    return UserRepository(db_session)
+def representative_repo(db_session):
+    return RepresentativeRepository(db_session)
 
 
 @pytest.fixture
@@ -101,10 +115,126 @@ def booking_repo(db_session):
 
 
 @pytest.fixture
+def pool_manager_repo(db_session):
+    return PoolManagerRepository(db_session)
+
+
+@pytest.fixture
 def swimming_coach_repo(db_session):
     return SwimmingCoachRepository(db_session)
 
 
 @pytest.fixture
 def security():
-    return Security()  # type: ignore[no-untyped-call]
+    return Security()
+
+
+@pytest.fixture
+def authenticated_admin(db_session):
+    admin = AdminFactory()
+    db_session.add(admin)
+    db_session.commit()
+    return admin
+
+
+@pytest.fixture
+def authenticated_pool_manager(db_session):
+    pool_manager = PoolManagerFactory()
+    db_session.add(pool_manager)
+    db_session.commit()
+    return pool_manager
+
+
+@pytest.fixture
+def authenticated_representative(db_session):
+    representative = RepresentativeFactory()
+    db_session.add(representative)
+    db_session.commit()
+    return representative
+
+
+@pytest.fixture
+def authenticated_swimming_coach(db_session):
+    swimming_coach = SwimmingCoachFactory()
+    db_session.add(swimming_coach)
+    db_session.commit()
+    return swimming_coach
+
+
+class AuthenticatedClient:
+    def __init__(self, client: TestClient, token: str, user_type):
+        self.client = client
+        self.token = token
+        self.user_type = user_type
+
+    def _inject_headers(self, headers: Optional[Dict[str, str]]) -> Dict[str, str]:
+        headers = headers or {}
+        headers["Authorization"] = f"Bearer {self.token}"
+        return headers
+
+    def get(self, url, **kwargs):
+        kwargs["headers"] = self._inject_headers(kwargs.get("headers"))
+        return self.client.get(url, **kwargs)
+
+    def post(self, url, **kwargs):
+        kwargs["headers"] = self._inject_headers(kwargs.get("headers"))
+        return self.client.post(url, **kwargs)
+
+    def delete(self, url, **kwargs):
+        kwargs["headers"] = self._inject_headers(kwargs.get("headers"))
+        return self.client.delete(url, **kwargs)
+
+    def put(self, url, **kwargs):
+        kwargs["headers"] = self._inject_headers(kwargs.get("headers"))
+        return self.client.put(url, **kwargs)
+
+
+@pytest.fixture
+def make_authenticated_client(client, security):
+    def _make(user_type):
+        token = security.create_access_token(
+            {
+                "user_id": str(user_type.user.id),
+                "admin_id": str(user_type.id) if isinstance(user_type, Admin) else None,
+                "pool_manager_id": (
+                    str(user_type.id) if isinstance(user_type, PoolManager) else None
+                ),
+                "representative_id": (
+                    str(user_type.id) if isinstance(user_type, Representative) else None
+                ),
+                "swimming_coach_id": (
+                    str(user_type.id) if isinstance(user_type, SwimmingCoach) else None
+                ),
+            }
+        )
+        return AuthenticatedClient(client, token, user_type)
+
+    return _make
+
+
+@pytest.fixture
+def admin_client(db_session, make_authenticated_client):
+    admin = AdminFactory()
+    db_session.commit()
+    return make_authenticated_client(admin)
+
+
+@pytest.fixture
+def pool_manager_client(db_session, make_authenticated_client):
+    pool_manager = PoolManagerFactory()
+    db_session.commit()
+    return make_authenticated_client(pool_manager)
+
+
+@pytest.fixture
+def representative_client(db_session, make_authenticated_client):
+    representative = RepresentativeFactory()
+    db_session.commit()
+    return make_authenticated_client(representative)
+
+
+@pytest.fixture
+def swimming_coach_client(db_session, make_authenticated_client):
+    swimming_coach = SwimmingCoachFactory()
+    db_session.commit()
+    return make_authenticated_client(swimming_coach)

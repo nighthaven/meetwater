@@ -1,0 +1,2 @@
+class RepresentativeNotLinkedToSwimmerException(Exception):
+    pass

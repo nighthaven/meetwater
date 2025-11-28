@@ -1,6 +1,8 @@
-from src.models.link.swimmer_user_link import SwimmerUserLink
+from src.models.link.swimmer_representative import SwimmerRepresentative
 from src.models.swimmer import Swimmer
 import factory
+
+from tests.fixtures.representative_factory import RepresentativeFactory
 
 
 class SwimmerFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore[misc]
@@ -13,26 +15,23 @@ class SwimmerFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore[mi
     last_name = factory.Faker("last_name")
     birth_date = factory.Faker("date_of_birth", minimum_age=5, maximum_age=17)
 
-    user_links = factory.LazyFunction(lambda: [])
-
     @factory.post_generation
-    def link_user(self, create, extracted, **kwargs):
+    def representatives(self, create, extracted, **kwargs):
         if not create:
             return
 
         if extracted:
-            user = extracted
-        else:
-            return
-        link = SwimmerUserLinkFactory(user=user, swimmer=self)
-        self.user_links.append(link)
+            for representative in extracted:
+                SwimmerRepresentativeFactory(
+                    swimmer=self, representative=representative
+                )
 
 
-class SwimmerUserLinkFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore[misc]
+class SwimmerRepresentativeFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore[misc]
     class Meta:
-        model = SwimmerUserLink
+        model = SwimmerRepresentative
         sqlalchemy_session = None
         sqlalchemy_session_persistence = "commit"
 
-    user = None
-    swimmer = None
+    representative = factory.SubFactory(RepresentativeFactory)
+    swimmer = factory.SubFactory(SwimmerFactory)

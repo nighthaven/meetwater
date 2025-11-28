@@ -13,7 +13,8 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models import Base
-from src.models.link.swimmers_bookings_link import SwimmerBookingLink
+from src.models.link.swimmers_bookings import SwimmerBooking
+
 
 if TYPE_CHECKING:
     from src.models.swimming_coach import SwimmingCoach
@@ -25,18 +26,24 @@ class Booking(Base):
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
-    booked_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=datetime.utcnow, nullable=False
+    appointment_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
     )
-    time_slot: Mapped[int] = mapped_column(Integer, default=30, nullable=False)
+    duration_minutes: Mapped[int] = mapped_column(Integer, default=30, nullable=False)
     status: Mapped[BookingStatus] = mapped_column(
         Enum(BookingStatus, name="booking_status_enum"),
         default=BookingStatus.ACCEPTED,
         nullable=False,
     )
-    swimmers: Mapped[List["SwimmerBookingLink"]] = relationship(
-        "SwimmerBookingLink", back_populates="booking", cascade="all, delete-orphan"
+    swimmers: Mapped[List["SwimmerBooking"]] = relationship(
+        "SwimmerBooking", back_populates="booking", cascade="all, delete-orphan"
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=datetime.utcnow, nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=datetime.utcnow, nullable=False
     )
     swimming_coach_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("swimming_coach.id"), nullable=False
@@ -47,12 +54,12 @@ class Booking(Base):
 
     __table_args__ = (
         CheckConstraint(
-            "booked_at > CURRENT_TIMESTAMP", name="ck_booking_booked_at_future"
+            "appointment_at > CURRENT_TIMESTAMP", name="ck_booking_booked_at_future"
         ),
     )
 
-    @validates("booked_at")
-    def validate_booked_at(self, key, value):
+    @validates("appointment_at")
+    def validate_appointment_at(self, key, value):
         if value <= datetime.now(tz=timezone.utc):
             raise BookingMustBeInTheFutureException("booked_at must be in the future.")
         return value
