@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from typing import Annotated, Any
+from typing import Annotated, Any, List
 
 from fastapi import APIRouter, Depends, status
 
@@ -9,10 +9,8 @@ from src.exceptions.representative.representative_not_found_exception import (
 from src.models.representative import Representative
 from src.repositories.representative_repository import RepresentativeRepository
 from src.repositories.swimmer_repository import SwimmerRepository
-from src.routes.dto.swimmer.list_swimmers_response_model import (
-    ListSwimmersResponseModel,
-)
 from src.routes.dto.swimmer.swimmer_query import SwimmerQuery
+from src.routes.dto.swimmer.swimmer_response_model import SwimmerResponseModel
 from src.services.security import Security
 from src.usecases.swimmers.create_swimmer import create_swimmer_usecase
 from src.usecases.swimmers.get_swimmers_by_representative import (
@@ -46,7 +44,7 @@ def create_swimmer(
 
 
 @router.get(
-    "/", status_code=status.HTTP_200_OK, response_model=ListSwimmersResponseModel
+    "/", status_code=status.HTTP_200_OK, response_model=List[SwimmerResponseModel]
 )
 def get_swimmers(
     swimmer_repository: Annotated[Any, Depends(SwimmerRepository)],
@@ -58,7 +56,7 @@ def get_swimmers(
         swimmers = get_swimmers_by_representative(
             swimmer_repository, current_representative
         )
-        return ListSwimmersResponseModel(swimmers=swimmers)
+        return swimmers
     except RepresentativeNotFoundException:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Swimmer not found"

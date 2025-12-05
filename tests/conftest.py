@@ -44,9 +44,6 @@ def override_get_db():
         db.close()
 
 
-app.dependency_overrides[get_db] = override_get_db
-
-
 @pytest.fixture
 def db_session():
     """Fixture qui crée une session de base de données pour les tests."""
@@ -60,21 +57,15 @@ def db_session():
 
 @pytest.fixture
 def client(db_session):
+    def override():
+        yield db_session
+
+    app.dependency_overrides[get_db] = override
     metadata.reflect(bind=engine)  # lie toutes donnée a la bdd
     metadata.drop_all(bind=engine)  # supprime tout
     alembic_cfg = Config("alembic.ini")
     alembic_cfg.set_main_option("sqlalchemy.url", SQLALCHEMY_DATABASE_URL)
     command.upgrade(alembic_cfg, "head")
-
-    UserFactory._meta.sqlalchemy_session = db_session
-    RepresentativeFactory._meta.sqlalchemy_session = db_session
-    SwimmerFactory._meta.sqlalchemy_session = db_session
-    SwimmerRepresentativeFactory._meta.sqlalchemy_session = db_session
-    BookingFactory._meta.sqlalchemy_session = db_session
-    SwimmerBookingFactory._meta.sqlalchemy_session = db_session
-    AdminFactory._meta.sqlalchemy_session = db_session
-    PoolManagerFactory._meta.sqlalchemy_session = db_session
-    SwimmingCoachFactory._meta.sqlalchemy_session = db_session
 
     yield TestClient(app)
 
@@ -85,15 +76,18 @@ def client(db_session):
 
 @pytest.fixture(autouse=True)
 def configure_factories(db_session):
-    UserFactory._meta.sqlalchemy_session = db_session
-    RepresentativeFactory._meta.sqlalchemy_session = db_session
-    SwimmerFactory._meta.sqlalchemy_session = db_session
-    SwimmerRepresentativeFactory._meta.sqlalchemy_session = db_session
-    BookingFactory._meta.sqlalchemy_session = db_session
-    SwimmerBookingFactory._meta.sqlalchemy_session = db_session
-    AdminFactory._meta.sqlalchemy_session = db_session
-    PoolManagerFactory._meta.sqlalchemy_session = db_session
-    SwimmingCoachFactory._meta.sqlalchemy_session = db_session
+    for factory in [
+        UserFactory,
+        RepresentativeFactory,
+        SwimmerFactory,
+        SwimmerRepresentativeFactory,
+        BookingFactory,
+        SwimmerBookingFactory,
+        AdminFactory,
+        PoolManagerFactory,
+        SwimmingCoachFactory,
+    ]:
+        factory._meta.sqlalchemy_session = db_session  # type: ignore[attr-defined]
 
 
 # injection dépendance :

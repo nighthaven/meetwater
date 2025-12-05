@@ -2,8 +2,6 @@ from src.models.link.swimmer_representative import SwimmerRepresentative
 from src.models.swimmer import Swimmer
 import factory
 
-from tests.fixtures.representative_factory import RepresentativeFactory
-
 
 class SwimmerFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore[misc]
     class Meta:
@@ -33,5 +31,5 @@ class SwimmerRepresentativeFactory(factory.alchemy.SQLAlchemyModelFactory):  # t
         sqlalchemy_session = None
         sqlalchemy_session_persistence = "commit"
 
-    representative = factory.SubFactory(RepresentativeFactory)
-    swimmer = factory.SubFactory(SwimmerFactory)
+    representative = None
+    swimmer = None

@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from typing import Annotated, Any
+from typing import Annotated, Any, List
 
 from fastapi import APIRouter, Depends, status
 
@@ -20,9 +20,13 @@ from src.models.representative import Representative
 from src.repositories.booking_repository import BookingRepository
 from src.repositories.swimmer_repository import SwimmerRepository
 from src.repositories.swimming_coach_repository import SwimmingCoachRepository
+from src.routes.dto.booking.booking_response_model import BookingResponseModel
 from src.routes.dto.booking.booking_query import BookingQuery
 from src.services.security import Security
 from src.usecases.booking.create_bookings import create_bookings_usecase
+from src.usecases.booking.get_bookings_by_representative_swimmers import (
+    get_bookings_by_representative_swimmers,
+)
 
 router = APIRouter(
     prefix="/bookings",
@@ -69,4 +73,41 @@ def create_booking(
     except SwimmingCoachNotFoundException:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Swimming coach not found"
+        )
+
+
+@router.get(
+    "/", status_code=status.HTTP_200_OK, response_model=List[BookingResponseModel]
+)
+def get_bookings(
+    booking_repository: Annotated[Any, Depends(BookingRepository)],
+    current_representative: Representative = Depends(
+        Security.get_current_representative
+    ),
+):
+    try:
+        bookings = get_bookings_by_representative_swimmers(
+            booking_repository, current_representative
+        )
+        serialized = []
+        for booking in bookings:
+            swimmers = [sb.swimmer for sb in booking.swimmers]
+            serialized.append(
+                BookingResponseModel.model_validate(
+                    {
+                        **booking.__dict__,
+                        "swimmers": swimmers,
+                        "swimming_coach_name": (
+                            booking.swimming_coach.full_name
+                            if booking.swimming_coach
+                            else None
+                        ),
+                    }
+                )
+            )
+
+        return serialized
+    except RepresentativeNotFoundException:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="User is not representative"
         )

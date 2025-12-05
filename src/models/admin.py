@@ -45,5 +45,6 @@ class Admin(Base):
 
         self.user = User(email=email, password=password)  # type: ignore[call-arg]
 
+    @property
     def full_name(self) -> str:
         return f"{self.first_name} {self.last_name}".strip()

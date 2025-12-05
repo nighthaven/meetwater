@@ -84,3 +84,7 @@ class SwimmingCoach(Base):
         if value and value < date.today() - timedelta(days=pse_valid_time_days):
             raise ValueError("PSE certification expired")
         return value
+
+    @property
+    def full_name(self) -> str:
+        return f"{self.first_name} {self.last_name}".strip()

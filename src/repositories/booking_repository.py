@@ -1,10 +1,11 @@
 from typing import Annotated, List
+from uuid import UUID
 
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from src.models import get_db
 from src.models.booking import Booking
-from src.models.swimmer import Swimmer
+from src.models.link.swimmers_bookings import SwimmerBooking
 
 
 class BookingRepository:
@@ -27,10 +28,18 @@ class BookingRepository:
             self.db.close()
             raise e
 
-    def get_all_booking_by_swimmer(self, swimmer: Swimmer) -> List[Booking]:
-        try:
-            return self.db.query(Booking).filter(Booking.swimmers == swimmer).all()
-        except Exception as e:
-            self.db.rollback()
-            self.db.close()
-            raise e
+    def get_bookings_by_swimmers(self, swimmers_ids: List[UUID]) -> List[Booking]:
+        subq = (
+            self.db.query(SwimmerBooking.booking_id)
+            .filter(SwimmerBooking.swimmer_id.in_(swimmers_ids))
+            .distinct()
+            .subquery()
+        )
+
+        bookings = (
+            self.db.query(Booking)
+            .options(joinedload(Booking.swimmers))
+            .filter(Booking.id.in_(subq))  # type: ignore[arg-type]
+            .all()
+        )
+        return bookings

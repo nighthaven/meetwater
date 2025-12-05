@@ -8,11 +8,9 @@ from tests.fixtures.user_factory import UserFactory
 
 
 class TestLoginUser:
-    def test_login_user(self, client):
+    def test_login_user(self, client, security, db_session):
 
-        user = UserFactory(
-            email="test@example.com",
-        )
+        user = UserFactory(email="test@example.com")
 
         response = client.post(
             "/login", data={"username": user.email, "password": "pass"}

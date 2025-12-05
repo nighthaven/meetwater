@@ -1,5 +1,5 @@
 import uuid
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 from datetime import datetime, date
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -40,7 +40,7 @@ class Swimmer(Base):
         "SwimmerRepresentative",
         back_populates="swimmer",
     )
-    bookings: Mapped[SwimmerBooking] = relationship(
+    bookings: Mapped[List[SwimmerBooking]] = relationship(
         "SwimmerBooking", back_populates="swimmer", cascade="all, delete-orphan"
     )
     created_at: Mapped[datetime] = mapped_column(
@@ -81,5 +81,6 @@ class Swimmer(Base):
         if self.birth_date > min_birth_date:
             raise ValueError("Le nageur doit avoir au moins 4 ans.")
 
+    @property
     def full_name(self) -> str:
         return f"{self.first_name} {self.last_name}".strip()
