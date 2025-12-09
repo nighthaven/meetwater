@@ -1,5 +1,6 @@
 import uuid
 from datetime import date, datetime
+from typing import List
 
 from sqlalchemy import (
     String,
@@ -15,6 +16,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship  # type: ignore[a
 
 from src.models import Base
 from src.models.link.swimmer_representative import SwimmerRepresentative
+from src.models.swimmer import Swimmer
 
 from src.models.user import User
 
@@ -34,11 +36,18 @@ class Representative(Base):
     user: Mapped["User"] = relationship(
         "User", uselist=False, cascade="all, delete-orphan", single_parent=True
     )
-    swimmers: Mapped[list["SwimmerRepresentative"]] = relationship(
+
+    swimmers: Mapped[List["SwimmerRepresentative"]] = relationship(
         "SwimmerRepresentative",
         back_populates="representative",
         cascade="all, delete-orphan",
     )
+    students: Mapped[List["Swimmer"]] = relationship(
+        "Swimmer",
+        secondary="swimmers_representatives",
+        viewonly=True,
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(),
         server_default=func.now(),

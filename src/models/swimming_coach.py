@@ -1,19 +1,21 @@
 import uuid
 from datetime import datetime
-from typing import List
+from typing import List, TYPE_CHECKING
 from datetime import date, timedelta
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import Date, CheckConstraint, ForeignKey, String, TIMESTAMP, func
 from src.models import Base
 from src.models.booking import Booking
-
-
 from src.models.user import User
+
+if TYPE_CHECKING:
+    from src.models.link.swimmers_coachs import SwimmerCoach
+    from src.models.swimmer import Swimmer
 
 
 class SwimmingCoach(Base):
-    __tablename__ = "swimming_coach"
+    __tablename__ = "swimming_coaches"
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
@@ -29,6 +31,14 @@ class SwimmingCoach(Base):
     )
     bookings: Mapped[List["Booking"]] = relationship(
         "Booking", back_populates="swimming_coach", cascade="all, delete-orphan"
+    )
+    swimmers: Mapped[List["SwimmerCoach"]] = relationship(
+        "SwimmerCoach",
+        back_populates="swimming_coach",
+        cascade="all, delete-orphan",
+    )
+    students: Mapped[List["Swimmer"]] = relationship(
+        "Swimmer", secondary="swimmers_coaches", viewonly=True
     )
 
     last_caep_certification_date: Mapped[date] = mapped_column(Date, nullable=True)

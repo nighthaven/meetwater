@@ -19,7 +19,7 @@ from src.exceptions.swimming_coach.swimming_coach_not_found_exception import (
 from src.models.representative import Representative
 from src.repositories.booking_repository import BookingRepository
 from src.repositories.swimmer_repository import SwimmerRepository
-from src.repositories.swimming_coach_repository import SwimmingCoachRepository
+from src.repositories.swimming_coaches_repository import SwimmingCoachRepository
 from src.routes.dto.booking.booking_response_model import BookingResponseModel
 from src.routes.dto.booking.booking_query import BookingQuery
 from src.services.security import Security

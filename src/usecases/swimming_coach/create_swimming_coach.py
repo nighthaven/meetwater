@@ -1,7 +1,7 @@
 from fastapi import Depends
 from src.models.pool_manager import PoolManager
 from src.models.swimming_coach import SwimmingCoach
-from src.repositories.swimming_coach_repository import SwimmingCoachRepository
+from src.repositories.swimming_coaches_repository import SwimmingCoachRepository
 from src.routes.dto.swimming_coach.swimming_coach_query import SwimmingCoachQuery
 from src.services.security import Security
 

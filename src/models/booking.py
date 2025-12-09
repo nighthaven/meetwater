@@ -18,6 +18,7 @@ from src.models.link.swimmers_bookings import SwimmerBooking
 
 if TYPE_CHECKING:
     from src.models.swimming_coach import SwimmingCoach
+    from src.models.swimmer import Swimmer
 
 
 class Booking(Base):
@@ -38,6 +39,9 @@ class Booking(Base):
     swimmers: Mapped[List["SwimmerBooking"]] = relationship(
         "SwimmerBooking", back_populates="booking", cascade="all, delete-orphan"
     )
+    students: Mapped[List["Swimmer"]] = relationship(
+        "Swimmer", secondary="swimmers_bookings", viewonly=True
+    )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=datetime.utcnow, nullable=False
@@ -46,7 +50,7 @@ class Booking(Base):
         DateTime(timezone=True), default=datetime.utcnow, nullable=False
     )
     swimming_coach_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("swimming_coach.id"), nullable=False
+        UUID(as_uuid=True), ForeignKey("swimming_coaches.id"), nullable=False
     )
     swimming_coach: Mapped["SwimmingCoach"] = relationship(
         "SwimmingCoach", back_populates="bookings"

@@ -6,7 +6,7 @@ from src.exceptions.pool_manager.pool_manager_not_found_exception import (
     PoolManagerNotFoundException,
 )
 from src.models.pool_manager import PoolManager
-from src.repositories.swimming_coach_repository import SwimmingCoachRepository
+from src.repositories.swimming_coaches_repository import SwimmingCoachRepository
 from src.routes.dto.swimming_coach.swimming_coach_query import SwimmingCoachQuery
 from src.services.security import Security
 from src.usecases.swimming_coach.create_swimming_coach import (

@@ -26,7 +26,7 @@ def upgrade() -> None:
     op.create_foreign_key(
         "fk_bookings_swimming_coach",
         "bookings",
-        "swimming_coach",
+        "swimming_coaches",
         ["swimming_coach_id"],
         ["id"],
     )

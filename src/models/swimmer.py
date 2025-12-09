@@ -16,8 +16,12 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship  # type: ignore[attr-defined]
 
 from src.models import Base
+from src.models.booking import Booking
 from src.models.enums.swimmer_level import SwimmerLevel
+from src.models.link.swimmer_representative import SwimmerRepresentative
 from src.models.link.swimmers_bookings import SwimmerBooking
+from src.models.link.swimmers_coachs import SwimmerCoach
+from src.models.swimming_coach import SwimmingCoach
 
 if TYPE_CHECKING:
     from src.models.representative import Representative
@@ -36,13 +40,31 @@ class Swimmer(Base):
         nullable=False,
         default=SwimmerLevel.INTERMEDIATE,
     )
-    representatives: Mapped[list["Representative"]] = relationship(
+
+    representatives: Mapped[list["SwimmerRepresentative"]] = relationship(
         "SwimmerRepresentative",
         back_populates="swimmer",
     )
+    representatives_list: Mapped[List["Representative"]] = relationship(
+        "Representative",
+        secondary="swimmers_representatives",
+        viewonly=True,
+    )
+
     bookings: Mapped[List[SwimmerBooking]] = relationship(
         "SwimmerBooking", back_populates="swimmer", cascade="all, delete-orphan"
     )
+    bookings_list: Mapped[List["Booking"]] = relationship(
+        "Booking", secondary="swimmers_bookings", viewonly=True
+    )
+
+    swimming_coaches: Mapped[List[SwimmerCoach]] = relationship(
+        "SwimmerCoach", back_populates="swimmer", cascade="all, delete-orphan"
+    )
+    coaches: Mapped[List["SwimmingCoach"]] = relationship(
+        "SwimmingCoach", secondary="swimmers_coaches", viewonly=True
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(),
         server_default=func.now(),

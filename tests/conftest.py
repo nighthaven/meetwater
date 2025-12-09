@@ -16,7 +16,7 @@ from src.repositories.booking_repository import BookingRepository
 from src.repositories.pool_manager_repository import PoolManagerRepository
 from src.repositories.representative_repository import RepresentativeRepository
 from src.repositories.swimmer_repository import SwimmerRepository
-from src.repositories.swimming_coach_repository import SwimmingCoachRepository
+from src.repositories.swimming_coaches_repository import SwimmingCoachRepository
 from src.services.security import Security
 from tests.fixtures.admin_factory import AdminFactory
 from tests.fixtures.booking_factory import BookingFactory, SwimmerBookingFactory

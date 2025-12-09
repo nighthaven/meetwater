@@ -9,7 +9,7 @@ from src.exceptions.representative.representative_not_linked_to_swimmer_exceptio
 )
 from src.models.link.swimmer_representative import SwimmerRepresentative
 from src.models.link.swimmers_bookings import SwimmerBooking
-from src.repositories.swimming_coach_repository import SwimmingCoachRepository
+from src.repositories.swimming_coaches_repository import SwimmingCoachRepository
 from src.services.security import Security
 from src.exceptions.booking.booking_already_taken_for_swimmer_exception import (
     BookingAlreadyTakenForSwimmerException,

@@ -16,6 +16,7 @@ def install_models() -> None:
     from src.models import booking
     from src.models.link import swimmers_bookings
     from src.models import swimming_coach
+    from src.models.link import swimmers_coachs
     from src.models import pool_manager
     from src.models import admin
 

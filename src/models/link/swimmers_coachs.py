@@ -6,24 +6,24 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship  # type: ignore[attr-defined]
 
 from src.models import Base
+from src.models.swimming_coach import SwimmingCoach
 
 if TYPE_CHECKING:
-    from src.models.representative import Representative
     from src.models.swimmer import Swimmer
 
 
-class SwimmerRepresentative(Base):
-    __tablename__ = "swimmers_representatives"
-    representative_id: Mapped[uuid.UUID] = mapped_column(
-        UUID, ForeignKey("representatives.id"), primary_key=True
-    )
+class SwimmerCoach(Base):
+    __tablename__ = "swimmers_coaches"
     swimmer_id: Mapped[uuid.UUID] = mapped_column(
         UUID, ForeignKey("swimmers.id"), primary_key=True
     )
-
-    representative: Mapped["Representative"] = relationship(
-        "Representative", back_populates="swimmers"
+    swimming_coach_id: Mapped[uuid.UUID] = mapped_column(
+        UUID, ForeignKey("swimming_coaches.id"), primary_key=True
     )
+
     swimmer: Mapped["Swimmer"] = relationship(
-        "Swimmer", back_populates="representatives"
+        "Swimmer", back_populates="swimming_coaches"
+    )
+    swimming_coach: Mapped["SwimmingCoach"] = relationship(
+        "SwimmingCoach", back_populates="swimmers"
     )
