@@ -52,7 +52,37 @@ class SwimmerSeeds:
                 if representative.full_name == "James Holden"
             ],
         )
+        swimmer_4 = Swimmer(
+            first_name="Alex",
+            last_name="Kamal",
+            birth_date=ten_years,
+            level=SwimmerLevel.INTERMEDIATE,
+            representatives_list=[  # type: ignore
+                representative
+                for representative in representatives
+                if representative.full_name == "James Holden"
+            ],
+        )
+        swimmer_without_coach = Swimmer(
+            first_name="Klaes",
+            last_name="Ashford",
+            birth_date=ten_years,
+            level=SwimmerLevel.INTERMEDIATE,
+            representatives_list=[  # type: ignore
+                representative
+                for representative in representatives
+                if representative.full_name == "James Holden"
+            ],
+        )
+        list_swimmers = [
+            swimmer_1,
+            swimmer_2,
+            swimmer_3,
+            swimmer_4,
+            swimmer_without_coach,
+        ]
 
-        self.db.add_all([swimmer_1, swimmer_2, swimmer_3])
+        self.db.add_all(list_swimmers)
+        self.db.flush()
 
-        return [swimmer_1, swimmer_2, swimmer_3]
+        return list_swimmers

@@ -3,6 +3,7 @@ from src.seeds.representative_seeds import RepresentativeSeeds
 from src.models import SessionLocal
 from src.seeds.clear_tables import clear_tables
 from src.seeds.swimmer_seeds import SwimmerSeeds
+from src.seeds.swimming_coach_seeds import SwimmingCoachSeeds
 
 
 def seed_all() -> None:
@@ -12,10 +13,12 @@ def seed_all() -> None:
     admin_seeds = AdminSeeds(db=session)
     representative_seeds = RepresentativeSeeds(db=session)
     swimmer_seeds = SwimmerSeeds(db=session)
+    swimming_coach_seeds = SwimmingCoachSeeds(db=session)
 
     admin_seeds.create_admin_seeds()
     representatives = representative_seeds.create_representatives_seeds()
-    swimmer_seeds.create_swimmer_seeds(representatives)
+    swimmers = swimmer_seeds.create_swimmer_seeds(representatives)
+    swimming_coach_seeds.create_swimming_coach_seeds(swimmers)
 
     session.commit()
     session.close()
