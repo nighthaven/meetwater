@@ -7,6 +7,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import Date, CheckConstraint, ForeignKey, String, TIMESTAMP, func
 from src.models import Base
 from src.models.booking import Booking
+from src.models.coach_schedule import CoachSchedule
 from src.models.user import User
 
 if TYPE_CHECKING:
@@ -39,6 +40,10 @@ class SwimmingCoach(Base):
     )
     students: Mapped[List["Swimmer"]] = relationship(
         "Swimmer", secondary="swimmers_coaches", viewonly=True
+    )
+
+    schedules: Mapped[List["CoachSchedule"]] = relationship(
+        "CoachSchedule", back_populates="swimming_coach"
     )
 
     last_caep_certification_date: Mapped[date] = mapped_column(Date, nullable=True)
