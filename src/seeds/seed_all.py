@@ -1,4 +1,5 @@
 from src.seeds.admin_seeds import AdminSeeds
+from src.seeds.coach_schedule_seeds import CoachScheduleSeeds
 from src.seeds.representative_seeds import RepresentativeSeeds
 from src.models import SessionLocal
 from src.seeds.clear_tables import clear_tables
@@ -14,11 +15,13 @@ def seed_all() -> None:
     representative_seeds = RepresentativeSeeds(db=session)
     swimmer_seeds = SwimmerSeeds(db=session)
     swimming_coach_seeds = SwimmingCoachSeeds(db=session)
+    coaches_schedules_seeds = CoachScheduleSeeds(db=session)
 
     admin_seeds.create_admin_seeds()
     representatives = representative_seeds.create_representatives_seeds()
     swimmers = swimmer_seeds.create_swimmer_seeds(representatives)
-    swimming_coach_seeds.create_swimming_coach_seeds(swimmers)
+    swimming_coaches = swimming_coach_seeds.create_swimming_coach_seeds(swimmers)
+    coaches_schedules_seeds.create_coach_schedule(swimming_coaches)
 
     session.commit()
     session.close()

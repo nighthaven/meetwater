@@ -43,3 +43,5 @@ class CoachSchedule(Base):
     swimming_coach: Mapped["SwimmingCoach"] = relationship(
         "SwimmingCoach", back_populates="schedules"
     )
+
+    __init__ = Base.__init__

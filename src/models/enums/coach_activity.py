@@ -13,3 +13,4 @@ class CoachActivity(Enum):
     AQUA_HEALTH_TRAINING = "aqua_health_training"
     AQUATIC_PRESCHOOL_4_5 = "aquatic_preschool_4_5"
     AQUATIC_PRESCHOOL_5_6 = "aquatic_preschool_5_6"
+    AVAILABLE = "available"
