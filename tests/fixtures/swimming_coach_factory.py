@@ -6,6 +6,7 @@ from src.models.link.swimmers_coachs import SwimmerCoach
 from src.models.swimming_coach import SwimmingCoach
 from src.services.security import Security
 from tests.fixtures.coach_schedule_factory import CoachScheduleFactory
+from tests.fixtures.swimming_pool_factory import SwimmingPoolFactory
 
 
 def random_date_within_years(years: int) -> date:
@@ -30,6 +31,7 @@ class SwimmingCoachFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ign
     last_pse_certification_date = factory.LazyFunction(
         lambda: random_date_within_years(1)
     )
+    swimming_pool_id = factory.LazyFunction(lambda: SwimmingPoolFactory().id)
 
     # information nécessaire pour la génération du user
     email = factory.Faker("email")

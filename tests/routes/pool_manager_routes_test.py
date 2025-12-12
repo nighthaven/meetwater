@@ -1,8 +1,13 @@
+from tests.fixtures.swimming_pool_factory import SwimmingPoolFactory
+
+
 class TestPoolManagerRoutes:
     def test_pool_manager_routes(self, pool_manager_repo, admin_client):
+        swimming_pool = SwimmingPoolFactory()
         payload = {
             "first_name": "John",
             "last_name": "Doe",
+            "swimming_pool_id": str(swimming_pool.id),
             "email": "johndoe@example.com",
             "raw_password": "password",
         }

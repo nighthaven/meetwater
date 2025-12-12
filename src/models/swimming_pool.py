@@ -43,4 +43,8 @@ class SwimmingPool(Base):
         "PoolManager", back_populates="swimming_pool", cascade="all, delete-orphan"
     )
 
-    __init__ = Base.__init__
+    def __init__(self, pool_name, address, city, post_code) -> None:
+        self.pool_name = pool_name
+        self.address = address
+        self.city = city
+        self.post_code = post_code

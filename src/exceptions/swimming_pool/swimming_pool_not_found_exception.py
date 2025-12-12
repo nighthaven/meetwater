@@ -1,0 +1,2 @@
+class SwimmingPoolNotFoundException(Exception):
+    pass

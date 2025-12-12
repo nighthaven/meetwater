@@ -52,9 +52,17 @@ class PoolManager(Base):
         nullable=False,
     )
 
-    def __init__(self, first_name: str, last_name: str, email: str, password: str):
+    def __init__(
+        self,
+        first_name: str,
+        last_name: str,
+        swimming_pool_id: uuid.UUID,
+        email: str,
+        password: str,
+    ):
         self.first_name = first_name
         self.last_name = last_name
+        self.swimming_pool_id = swimming_pool_id
 
         self.user = User(email=email, password=password)  # type: ignore[call-arg]
 

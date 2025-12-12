@@ -27,7 +27,9 @@ def create_swimming_coach(
     current_pool_manager: PoolManager = Depends(Security.get_current_pool_manager),
 ):
     try:
-        create_swimming_coach_usecase(query, security, swimming_coach_repository)
+        create_swimming_coach_usecase(
+            query, security, swimming_coach_repository, current_pool_manager
+        )
     except PoolManagerNotFoundException:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="User is not a pool manager"

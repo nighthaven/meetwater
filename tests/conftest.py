@@ -17,6 +17,7 @@ from src.repositories.pool_manager_repository import PoolManagerRepository
 from src.repositories.representative_repository import RepresentativeRepository
 from src.repositories.swimmer_repository import SwimmerRepository
 from src.repositories.swimming_coaches_repository import SwimmingCoachRepository
+from src.repositories.swimming_pool_repository import SwimmingPoolRepository
 from src.services.security import Security
 from tests.fixtures.admin_factory import AdminFactory
 from tests.fixtures.booking_factory import BookingFactory, SwimmerBookingFactory
@@ -28,6 +29,7 @@ from tests.fixtures.swimming_coach_factory import (
     SwimmingCoachFactory,
     SwimmerCoachFactory,
 )
+from tests.fixtures.swimming_pool_factory import SwimmingPoolFactory
 from tests.fixtures.user_factory import UserFactory
 import os
 
@@ -82,6 +84,7 @@ def client(db_session):
 def configure_factories(db_session):
     for factory in [
         UserFactory,
+        SwimmingPoolFactory,
         RepresentativeFactory,
         SwimmerFactory,
         SwimmerRepresentativeFactory,
@@ -122,6 +125,11 @@ def pool_manager_repo(db_session):
 @pytest.fixture
 def swimming_coach_repo(db_session):
     return SwimmingCoachRepository(db_session)
+
+
+@pytest.fixture
+def swimming_pool_repo(db_session):
+    return SwimmingPoolRepository(db_session)
 
 
 @pytest.fixture
