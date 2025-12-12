@@ -1,17 +1,10 @@
 from sqlalchemy.orm import Session
 from typing import List
-from datetime import datetime, timedelta, time
 
 from src.models.coach_schedule import CoachSchedule
 from src.models.enums.coach_activity import CoachActivity
 from src.models.swimming_coach import SwimmingCoach
-
-
-def _futur_date_and_time(days: int, hours: int):
-    tomorrow = datetime.combine(
-        datetime.now().date() + timedelta(days=days), time(hours, 0)
-    )
-    return tomorrow
+from src.services.date_time_service import DateTimeService
 
 
 class CoachScheduleSeeds:
@@ -22,7 +15,7 @@ class CoachScheduleSeeds:
         list_schedule_coach_without_swimmers = [
             CoachSchedule(
                 activity=CoachActivity.PUBLIC_LIFEGUARDING,
-                scheduled_at=_futur_date_and_time(1, 14),
+                scheduled_at=DateTimeService.futur_date_and_time(1, 14),
                 duration_minutes=60 * 4,
                 swimming_coach_id=[
                     coach.id
@@ -32,7 +25,7 @@ class CoachScheduleSeeds:
             ),
             CoachSchedule(
                 activity=CoachActivity.AQUA_BIKE,
-                scheduled_at=_futur_date_and_time(2, 14),
+                scheduled_at=DateTimeService.futur_date_and_time(2, 14),
                 duration_minutes=60 * 4,
                 swimming_coach_id=[
                     coach.id
@@ -42,7 +35,7 @@ class CoachScheduleSeeds:
             ),
             CoachSchedule(
                 activity=CoachActivity.AVAILABLE,
-                scheduled_at=_futur_date_and_time(3, 14),
+                scheduled_at=DateTimeService.futur_date_and_time(3, 14),
                 duration_minutes=60 * 4,
                 swimming_coach_id=[
                     coach.id
@@ -58,7 +51,7 @@ class CoachScheduleSeeds:
                 list_schedule_coach_with_swimmers = [
                     CoachSchedule(
                         activity=CoachActivity.PUBLIC_LIFEGUARDING,
-                        scheduled_at=_futur_date_and_time(1, 14),
+                        scheduled_at=DateTimeService.futur_date_and_time(1, 14),
                         duration_minutes=60 * 4,
                         swimming_coach_id=[
                             coach.id
@@ -68,7 +61,7 @@ class CoachScheduleSeeds:
                     ),
                     CoachSchedule(
                         activity=CoachActivity.AQUA_BIKE,
-                        scheduled_at=_futur_date_and_time(2, 14),
+                        scheduled_at=DateTimeService.futur_date_and_time(2, 14),
                         duration_minutes=60 * 4,
                         swimming_coach_id=[
                             coach.id
@@ -78,7 +71,7 @@ class CoachScheduleSeeds:
                     ),
                     CoachSchedule(
                         activity=CoachActivity.AVAILABLE,
-                        scheduled_at=_futur_date_and_time(3, 14),
+                        scheduled_at=DateTimeService.futur_date_and_time(3, 14),
                         duration_minutes=60 * 4,
                         swimming_coach_id=[
                             coach.id

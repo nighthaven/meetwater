@@ -1,10 +1,9 @@
 import factory
-from datetime import datetime, timedelta, timezone
-import random
 
 from src.models.booking import Booking
 from src.models.enums.booking_status import BookingStatus
 from src.models.link.swimmers_bookings import SwimmerBooking
+from src.services.date_time_service import DateTimeService
 from tests.fixtures.swimming_coach_factory import SwimmingCoachFactory
 
 
@@ -15,8 +14,7 @@ class BookingFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore[mi
         sqlalchemy_session_persistence = "commit"
 
     appointment_at = factory.LazyFunction(
-        lambda: datetime.now(timezone.utc)
-        + timedelta(days=1, minutes=random.choice([0, 30]))
+        lambda: DateTimeService.futur_date_and_time(1, 14)
     )
     duration_minutes = 30
     status = BookingStatus.ACCEPTED

@@ -2,8 +2,17 @@ import factory
 import random
 from datetime import timedelta, date
 
+from src.models.link.swimmers_coachs import SwimmerCoach
 from src.models.swimming_coach import SwimmingCoach
 from src.services.security import Security
+from tests.fixtures.coach_schedule_factory import CoachScheduleFactory
+
+
+def random_date_within_years(years: int) -> date:
+    today = date.today()
+    start_date = today - timedelta(days=365 * years)
+    random_days = random.randint(0, (today - start_date).days)
+    return start_date + timedelta(days=random_days)
 
 
 class SwimmingCoachFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore[misc]
@@ -26,9 +35,32 @@ class SwimmingCoachFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ign
     email = factory.Faker("email")
     password = factory.LazyFunction(lambda: Security().hash_password("pass"))
 
+    @factory.post_generation
+    def schedules(self, create, extracted, **kwargs):
+        if not create:
+            return
 
-def random_date_within_years(years: int) -> date:
-    today = date.today()
-    start_date = today - timedelta(days=365 * years)
-    random_days = random.randint(0, (today - start_date).days)
-    return start_date + timedelta(days=random_days)
+        if extracted:
+            for schedule in extracted:
+                schedule.swimming_coach = self
+            return
+        CoachScheduleFactory(swimming_coach=self)
+
+    @factory.post_generation
+    def swimmers(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if extracted:
+            for swimmer in extracted:
+                SwimmerCoachFactory(swimmer=swimmer, swimming_coach=self)
+
+
+class SwimmerCoachFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ignore[misc]
+    class Meta:
+        model = SwimmerCoach
+        sqlalchemy_session = None
+        sqlalchemy_session_persistence = "commit"
+
+    swimmer = None
+    swimming_coach = None

@@ -1,5 +1,5 @@
 from uuid import UUID
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 from typing import List
 
 from fastapi import Depends
@@ -7,17 +7,17 @@ from fastapi import Depends
 from src.exceptions.representative.representative_not_linked_to_swimmer_exception import (
     RepresentativeNotLinkedToSwimmerException,
 )
+from src.exceptions.swimming_coach.no_coach_available import NoCoachAvailable
+from src.models.enums.coach_activity import CoachActivity
 from src.models.link.swimmer_representative import SwimmerRepresentative
 from src.models.link.swimmers_bookings import SwimmerBooking
+from src.models.swimmer import Swimmer
 from src.repositories.swimming_coaches_repository import SwimmingCoachRepository
 from src.services.security import Security
 from src.exceptions.booking.booking_already_taken_for_swimmer_exception import (
     BookingAlreadyTakenForSwimmerException,
 )
 from src.exceptions.swimmer.swimmer_not_found_exception import SwimmerNotFoundException
-from src.exceptions.swimming_coach.swimming_coach_not_found_exception import (
-    SwimmingCoachNotFoundException,
-)
 from src.models.booking import Booking
 
 from src.models.representative import Representative
@@ -46,8 +46,12 @@ def create_bookings_usecase(
         booking_query.appointment_at,
         swimmer_repository,
     )
-    coach = _validate_and_return_swimming_coach(
-        booking_query.swimming_coach_id, swimming_coach_repository
+    coach = _assign_validate_and_return_swimming_coach(
+        selected_swimmers,
+        booking_query.appointment_at,
+        booking_query.duration_minutes,
+        swimmer_repository,
+        swimming_coach_repository,
     )
 
     new_booking = Booking()
@@ -115,10 +119,87 @@ def _validate_booking_not_taken_for_swimmer(
             )
 
 
-def _validate_and_return_swimming_coach(
-    coach_id: UUID, swimming_coach_repository: SwimmingCoachRepository
+def _assign_validate_and_return_swimming_coach(
+    list_swimmers: List[Swimmer],
+    appointement_at: datetime,
+    duration_minutes: int,
+    swimmer_repository: SwimmerRepository,
+    swimming_coach_repository: SwimmingCoachRepository,
 ) -> SwimmingCoach:
-    coach = swimming_coach_repository.get(coach_id)
-    if not coach:
-        raise SwimmingCoachNotFoundException("Coach not found")
+    list_coaches = [coach for swimmer in list_swimmers for coach in swimmer.coaches]
+    coach = None
+    if list_coaches:
+        list_coaches = _filter_schedule_for_coaches(
+            list_coaches, appointement_at, duration_minutes
+        )
+        list_coaches = _filter_coach_without_appointement(
+            list_coaches, appointement_at, duration_minutes
+        )
+        coach = _choose_coach(list_coaches)
+    if not list_coaches or not coach:
+        list_coaches = swimming_coach_repository.get_all_available_coach(
+            appointement_at, duration_minutes
+        )
+        if not list_coaches:
+            raise NoCoachAvailable()
+        coach = _choose_coach(list_coaches)
+        if not coach:
+            raise NoCoachAvailable()
+    _assign_coach_to_swimmer(list_swimmers, coach, swimmer_repository)
     return coach
+
+
+def _filter_schedule_for_coaches(
+    list_coaches: List[SwimmingCoach],
+    appointement_at: datetime,
+    duration_minutes: int,
+) -> List[SwimmingCoach]:
+    appointment_over = appointement_at + timedelta(minutes=duration_minutes)
+    list_selected_coaches = []
+    for coach in list_coaches:
+        for schedule in coach.schedules:
+            if (
+                schedule.activity == CoachActivity.AVAILABLE
+                and appointement_at <= schedule.scheduled_at < appointment_over
+            ):
+                list_selected_coaches.append(coach)
+    return list_selected_coaches
+
+
+def _filter_coach_without_appointement(
+    list_coaches: List[SwimmingCoach], appointement_at: datetime, duration_minutes: int
+) -> List[SwimmingCoach]:
+    appointment_over = appointement_at + timedelta(minutes=duration_minutes)
+    for coach in list_coaches:
+        for booking in coach.bookings:
+            if appointement_at <= booking.appointment_at < appointment_over:
+                list_coaches.remove(coach)
+    return list_coaches
+
+
+def _choose_coach(list_coach: List[SwimmingCoach]) -> SwimmingCoach | None:
+    choosen_coach = None
+    min_schedule = None
+    for coach in list_coach:
+        total_futur_schedule = len(
+            [
+                schedule
+                for schedule in coach.schedules
+                if schedule.scheduled_at >= datetime.now(timezone.utc)
+            ]
+        )
+        if not min_schedule or total_futur_schedule < min_schedule:
+            min_schedule = total_futur_schedule
+            choosen_coach = coach
+
+    return choosen_coach
+
+
+def _assign_coach_to_swimmer(
+    list_swimmers: List[Swimmer],
+    coach: SwimmingCoach,
+    swimmer_repository: SwimmerRepository,
+) -> None:
+    for swimmer in list_swimmers:
+        swimmer.coaches.append(coach)
+        swimmer_repository.save(swimmer)

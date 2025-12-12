@@ -13,6 +13,16 @@ class SwimmerRepository:
     def __init__(self, db: Annotated[Session, Depends(get_db)]):
         self.db = db
 
+    def save(self, swimmer: Swimmer):
+        try:
+            self.db.add(swimmer)
+            self.db.commit()
+            self.db.refresh(swimmer)
+        except Exception:
+            self.db.rollback()
+            self.db.close()
+            raise
+
     def get_by_name_and_birthdate(
         self, first_name: str, last_name: str, birthdate: date
     ) -> Swimmer | None:
