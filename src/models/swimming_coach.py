@@ -8,6 +8,7 @@ from sqlalchemy import Date, CheckConstraint, ForeignKey, String, TIMESTAMP, fun
 from src.models import Base
 from src.models.booking import Booking
 from src.models.coach_schedule import CoachSchedule
+from src.models.swimming_pool import SwimmingPool
 from src.models.user import User
 
 if TYPE_CHECKING:
@@ -58,6 +59,15 @@ class SwimmingCoach(Base):
         server_default=func.now(),
         nullable=False,
     )
+    swimming_pool_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("swimming_pool.id"),
+        nullable=False,
+    )
+
+    swimming_pool: Mapped["SwimmingPool"] = relationship(
+        "SwimmingPool", back_populates="coaches"
+    )
 
     __table_args__ = (
         CheckConstraint(
@@ -76,6 +86,7 @@ class SwimmingCoach(Base):
         last_name: str,
         last_caep_certification_date: date,
         last_pse_certification_date: date,
+        swimming_pool_id: uuid.UUID,
         email: str,
         password: str,
     ):
@@ -83,6 +94,7 @@ class SwimmingCoach(Base):
         self.last_name = last_name
         self.last_caep_certification_date = last_caep_certification_date
         self.last_pse_certification_date = last_pse_certification_date
+        self.swimming_pool_id = swimming_pool_id
 
         self.user = User(email=email, password=password)  # type: ignore[call-arg]
 

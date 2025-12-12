@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     String,
@@ -13,6 +14,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship  # type: ignore[a
 from src.models import Base
 
 from src.models.user import User
+
+if TYPE_CHECKING:
+    from src.models.swimming_pool import SwimmingPool
 
 
 class PoolManager(Base):
@@ -28,6 +32,15 @@ class PoolManager(Base):
     user: Mapped["User"] = relationship(
         "User", uselist=False, cascade="all, delete-orphan", single_parent=True
     )
+    swimming_pool_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("swimming_pool.id"),
+        nullable=False,
+    )
+    swimming_pool: Mapped["SwimmingPool"] = relationship(
+        "SwimmingPool", back_populates="pool_managers"
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(),
         server_default=func.now(),

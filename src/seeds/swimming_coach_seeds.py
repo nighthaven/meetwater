@@ -5,6 +5,7 @@ from datetime import date, timedelta
 from src.models.link.swimmers_coachs import SwimmerCoach
 from src.models.swimmer import Swimmer
 from src.models.swimming_coach import SwimmingCoach
+from src.models.swimming_pool import SwimmingPool
 
 
 class SwimmingCoachSeeds:
@@ -15,7 +16,7 @@ class SwimmingCoachSeeds:
         self.db = db
 
     def create_swimming_coach_seeds(
-        self, swimmers: List[Swimmer]
+        self, swimmers: List[Swimmer], swimming_pools: List[SwimmingPool]
     ) -> List[SwimmingCoach]:
         swimming_coach_without_swimmer = SwimmingCoach(
             first_name="Bruce",
@@ -24,6 +25,7 @@ class SwimmingCoachSeeds:
             last_pse_certification_date=self.six_month,
             email="brucewayne@example.com",
             password="pass",
+            swimming_pool_id=swimming_pools[0].id,
         )
 
         swimming_coach_1 = SwimmingCoach(
@@ -31,6 +33,7 @@ class SwimmingCoachSeeds:
             last_name="Man",
             last_caep_certification_date=self.two_years,
             last_pse_certification_date=self.six_month,
+            swimming_pool_id=swimming_pools[0].id,
             email="aquaman@example.com",
             password="pass",
         )
@@ -45,6 +48,7 @@ class SwimmingCoachSeeds:
             last_name="Prince",
             last_caep_certification_date=self.two_years,
             last_pse_certification_date=self.six_month,
+            swimming_pool_id=swimming_pools[0].id,
             email="wonderwoman@example.com",
             password="pass",
         )
@@ -59,6 +63,7 @@ class SwimmingCoachSeeds:
             last_name="Kent",
             last_caep_certification_date=self.two_years,
             last_pse_certification_date=self.six_month,
+            swimming_pool_id=swimming_pools[0].id,
             email="superman@example.com",
             password="pass",
         )
@@ -68,11 +73,22 @@ class SwimmingCoachSeeds:
             if s.full_name in ["Amos Burton", "Alex Kamal"]
         ]
 
+        swimming_coach_from_other_swimming_pool = SwimmingCoach(
+            first_name="Peter",
+            last_name="Parker",
+            last_caep_certification_date=self.two_years,
+            last_pse_certification_date=self.six_month,
+            swimming_pool_id=swimming_pools[1].id,
+            email="peterparker@example.com",
+            password="pass",
+        )
+
         coaches = [
             swimming_coach_without_swimmer,
             swimming_coach_1,
             swimming_coach_2,
             swimming_coach_with_two_swimmers,
+            swimming_coach_from_other_swimming_pool,
         ]
 
         self.db.add_all(coaches)

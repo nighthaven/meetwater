@@ -17,6 +17,7 @@ def create_swimming_coach_usecase(
         last_name=swimming_coach_query.last_name,
         last_caep_certification_date=swimming_coach_query.last_caep_certification_date,
         last_pse_certification_date=swimming_coach_query.last_pse_certification_date,
+        swimming_pool_id=current_pool_manager.swimming_pool_id,
         email=swimming_coach_query.email,
         password=security.hash_password(swimming_coach_query.raw_password),
     )
