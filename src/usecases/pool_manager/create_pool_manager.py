@@ -1,14 +1,14 @@
 from fastapi import Depends
 
-from src.exceptions.swimming_pool.swimming_pool_not_found_exception import (
-    SwimmingPoolNotFoundException,
-)
 from src.models.admin import Admin
 from src.models.pool_manager import PoolManager
 from src.repositories.pool_manager_repository import PoolManagerRepository
 from src.repositories.swimming_pool_repository import SwimmingPoolRepository
 from src.routes.dto.pool_manager.pool_manager_query import PoolManagerQuery
 from src.services.security import Security
+from src.usecases.validations.swimming_pool_validations import (
+    get_and_validate_swimming_pool,
+)
 
 
 def create_pool_manager_usecase(
@@ -18,9 +18,7 @@ def create_pool_manager_usecase(
     pool_manager_repository: PoolManagerRepository,
     current_admin: Admin = Depends(Security.get_current_admin),
 ):
-    swimming_pool = swimming_pool_repository.find(query.swimming_pool_id)
-    if not swimming_pool:
-        raise SwimmingPoolNotFoundException("swimming pool not found")
+    get_and_validate_swimming_pool(query.swimming_pool_id, swimming_pool_repository)
     pool_manager = PoolManager(
         first_name=query.first_name,
         last_name=query.last_name,

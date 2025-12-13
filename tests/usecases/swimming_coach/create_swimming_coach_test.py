@@ -9,7 +9,12 @@ from src.usecases.swimming_coach.create_swimming_coach import (
 
 class TestCreateSwimmingCoach:
     def test_create_swimming_coach(
-        self, security, swimming_coach_repo, authenticated_pool_manager, db_session
+        self,
+        security,
+        swimming_pool_repo,
+        swimming_coach_repo,
+        authenticated_pool_manager,
+        db_session,
     ):
         caep_date = (datetime.now(timezone.utc) - timedelta(days=2 * 365)).date()
         pse_date = (datetime.now(timezone.utc) - timedelta(days=200)).date()
@@ -23,7 +28,11 @@ class TestCreateSwimmingCoach:
         )
 
         create_swimming_coach_usecase(
-            query, security, swimming_coach_repo, authenticated_pool_manager
+            query,
+            security,
+            swimming_pool_repo,
+            swimming_coach_repo,
+            authenticated_pool_manager,
         )
 
         query_swimming_coach = db_session.query(SwimmingCoach).all()

@@ -7,6 +7,7 @@ from src.exceptions.pool_manager.pool_manager_not_found_exception import (
 )
 from src.models.pool_manager import PoolManager
 from src.repositories.swimming_coaches_repository import SwimmingCoachRepository
+from src.repositories.swimming_pool_repository import SwimmingPoolRepository
 from src.routes.dto.swimming_coach.swimming_coach_query import SwimmingCoachQuery
 from src.services.security import Security
 from src.usecases.swimming_coach.create_swimming_coach import (
@@ -23,12 +24,17 @@ router = APIRouter(
 def create_swimming_coach(
     query: SwimmingCoachQuery,
     security: Annotated[Any, Depends(Security)],
+    swimming_pool_repository: Annotated[Any, Depends(SwimmingPoolRepository)],
     swimming_coach_repository: Annotated[Any, Depends(SwimmingCoachRepository)],
     current_pool_manager: PoolManager = Depends(Security.get_current_pool_manager),
 ):
     try:
         create_swimming_coach_usecase(
-            query, security, swimming_coach_repository, current_pool_manager
+            query,
+            security,
+            swimming_pool_repository,
+            swimming_coach_repository,
+            current_pool_manager,
         )
     except PoolManagerNotFoundException:
         raise HTTPException(

@@ -147,7 +147,9 @@ def authenticated_admin(db_session):
 
 @pytest.fixture
 def authenticated_pool_manager(db_session):
-    pool_manager = PoolManagerFactory()
+    swimming_pool = SwimmingPoolFactory()
+    pool_manager = PoolManagerFactory(swimming_pool_id=swimming_pool.id)
+    db_session.add(swimming_pool)
     db_session.add(pool_manager)
     db_session.commit()
     return pool_manager
@@ -163,7 +165,9 @@ def authenticated_representative(db_session):
 
 @pytest.fixture
 def authenticated_swimming_coach(db_session):
-    swimming_coach = SwimmingCoachFactory()
+    swimming_pool = SwimmingPoolFactory()
+    swimming_coach = SwimmingCoachFactory(swimming_pool_id=swimming_pool.id)
+    db_session.add(swimming_pool)
     db_session.add(swimming_coach)
     db_session.commit()
     return swimming_coach
