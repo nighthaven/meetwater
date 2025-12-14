@@ -4,16 +4,20 @@ import pytest
 from jose import jwt
 from src.routes.dto.auth.token import Token
 from src.services.security import ALGORYTHM, SECRET_KEY
+from tests.fixtures.swimming_pool_factory import SwimmingPoolFactory
 from tests.fixtures.user_factory import UserFactory
 
 
 class TestLoginUser:
     def test_login_user(self, client, security, db_session):
+        SwimmingPoolFactory(pool_name="test pool")
 
         user = UserFactory(email="test@example.com")
 
         response = client.post(
-            "/login", data={"username": user.email, "password": "pass"}
+            "/login",
+            data={"username": user.email, "password": "pass"},
+            headers={"Host": "test-pool.monsite.com"},
         )
 
         assert response.status_code == 200
@@ -34,6 +38,11 @@ class TestLoginUser:
         ],
     )
     def test_incorrect_login(self, client, email, password, status_code):
-        response = client.post("/login", data={"username": email, "password": password})
+        SwimmingPoolFactory(pool_name="test pool")
+        response = client.post(
+            "/login",
+            data={"username": email, "password": password},
+            headers={"Host": "test-pool.monsite.com"},
+        )
         assert response.status_code == status_code
         assert response.json().get("detail") == "Invalid Credential"

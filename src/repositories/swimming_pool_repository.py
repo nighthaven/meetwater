@@ -14,3 +14,6 @@ class SwimmingPoolRepository:
 
     def find(self, swimming_pool_id: UUID) -> SwimmingPool | None:
         return self.db.query(SwimmingPool).filter_by(id=swimming_pool_id).one_or_none()
+
+    def find_by_slug(self, slug: str) -> SwimmingPool | None:
+        return self.db.query(SwimmingPool).filter_by(slug=slug).one_or_none()

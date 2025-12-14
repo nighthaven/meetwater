@@ -203,10 +203,11 @@ class AuthenticatedClient:
 
 @pytest.fixture
 def make_authenticated_client(client, security):
-    def _make(user_type):
+    def _make(user_type, domain):
         token = security.create_access_token(
             {
                 "user_id": str(user_type.user.id),
+                "swimming_pool_id": str(domain.id),
                 "admin_id": str(user_type.id) if isinstance(user_type, Admin) else None,
                 "pool_manager_id": (
                     str(user_type.id) if isinstance(user_type, PoolManager) else None
@@ -227,26 +228,30 @@ def make_authenticated_client(client, security):
 @pytest.fixture
 def admin_client(db_session, make_authenticated_client):
     admin = AdminFactory()
+    swimming_pool = SwimmingPoolFactory(pool_name="swimming pool for domain")
     db_session.commit()
-    return make_authenticated_client(admin)
+    return make_authenticated_client(admin, swimming_pool)
 
 
 @pytest.fixture
 def pool_manager_client(db_session, make_authenticated_client):
     pool_manager = PoolManagerFactory()
+    swimming_pool = SwimmingPoolFactory(pool_name="swimming pool for domain")
     db_session.commit()
-    return make_authenticated_client(pool_manager)
+    return make_authenticated_client(pool_manager, swimming_pool)
 
 
 @pytest.fixture
 def representative_client(db_session, make_authenticated_client):
     representative = RepresentativeFactory()
+    swimming_pool = SwimmingPoolFactory(pool_name="swimming pool for domain")
     db_session.commit()
-    return make_authenticated_client(representative)
+    return make_authenticated_client(representative, swimming_pool)
 
 
 @pytest.fixture
 def swimming_coach_client(db_session, make_authenticated_client):
     swimming_coach = SwimmingCoachFactory()
+    swimming_pool = SwimmingPoolFactory(pool_name="swimming pool for domain")
     db_session.commit()
-    return make_authenticated_client(swimming_coach)
+    return make_authenticated_client(swimming_coach, swimming_pool)

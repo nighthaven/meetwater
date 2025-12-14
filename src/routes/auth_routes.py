@@ -11,6 +11,7 @@ from src.models.swimming_coach import SwimmingCoach
 from src.models.user import User
 from src.routes.dto.auth.token import Token
 from src.services.security import Security
+from src.services.subdomain_service import get_current_swimming_pool
 
 router = APIRouter(tags=["Authentification"])
 
@@ -19,6 +20,7 @@ router = APIRouter(tags=["Authentification"])
 def login(
     db: db_dependency,
     credential: Annotated[OAuth2PasswordRequestForm, Depends()],
+    swimming_pool: Annotated[Any, Depends(get_current_swimming_pool)],
     security: Annotated[Any, Depends(Security)],
 ):
     user = db.query(User).filter(User.email == credential.username).first()
