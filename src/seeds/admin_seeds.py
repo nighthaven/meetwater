@@ -2,6 +2,8 @@ from src.models.admin import Admin
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 
+from src.services.security import Security
+
 
 class AdminSeeds:
     twenty_years = datetime.now() - timedelta(days=365 * 20)
@@ -14,7 +16,7 @@ class AdminSeeds:
             first_name="Boris",
             last_name="Le Bon",
             email="boris@example.com",
-            password="pass",
+            password=Security.hash_password("pass"),
         )
 
         self.db.add(admin)

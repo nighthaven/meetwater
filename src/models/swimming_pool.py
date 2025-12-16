@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 class SwimmingPool(Base):
-    __tablename__ = "swimming_pool"
+    __tablename__ = "swimming_pools"
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )

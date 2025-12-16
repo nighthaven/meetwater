@@ -9,6 +9,12 @@ class SwimmingPoolSeeds:
         self.db = db
 
     def create_swimming_pool_seeds(self) -> List[SwimmingPool]:
+        swimming_pool_for_local_domain_test = SwimmingPool(
+            pool_name="Test pool",
+            address="11 Route de la Ramaz",
+            city="Les tests",
+            post_code="72170",
+        )
         swimming_pool_1 = SwimmingPool(
             pool_name="Piscine de neuilly",
             address="hotel neuilly passy",
@@ -22,7 +28,11 @@ class SwimmingPoolSeeds:
             post_code="74170",
         )
 
-        list_swimming_pool = [swimming_pool_1, swimming_pool_2]
+        list_swimming_pool = [
+            swimming_pool_for_local_domain_test,
+            swimming_pool_1,
+            swimming_pool_2,
+        ]
 
         self.db.add_all(list_swimming_pool)
         self.db.flush()

@@ -6,6 +6,7 @@ from src.models.link.swimmers_coachs import SwimmerCoach
 from src.models.swimmer import Swimmer
 from src.models.swimming_coach import SwimmingCoach
 from src.models.swimming_pool import SwimmingPool
+from src.services.security import Security
 
 
 class SwimmingCoachSeeds:
@@ -24,7 +25,7 @@ class SwimmingCoachSeeds:
             last_caep_certification_date=self.two_years,
             last_pse_certification_date=self.six_month,
             email="brucewayne@example.com",
-            password="pass",
+            password=Security.hash_password("pass"),
             swimming_pool_id=swimming_pools[0].id,
         )
 
@@ -35,7 +36,7 @@ class SwimmingCoachSeeds:
             last_pse_certification_date=self.six_month,
             swimming_pool_id=swimming_pools[0].id,
             email="aquaman@example.com",
-            password="pass",
+            password=Security.hash_password("pass"),
         )
         swimming_coach_1.swimmers = [
             SwimmerCoach(swimmer=swimmer)
@@ -50,7 +51,7 @@ class SwimmingCoachSeeds:
             last_pse_certification_date=self.six_month,
             swimming_pool_id=swimming_pools[0].id,
             email="wonderwoman@example.com",
-            password="pass",
+            password=Security.hash_password("pass"),
         )
         swimming_coach_2.swimmers = [
             SwimmerCoach(swimmer=swimmer)
@@ -65,7 +66,7 @@ class SwimmingCoachSeeds:
             last_pse_certification_date=self.six_month,
             swimming_pool_id=swimming_pools[0].id,
             email="superman@example.com",
-            password="pass",
+            password=Security.hash_password("pass"),
         )
         swimming_coach_with_two_swimmers.swimmers = [
             SwimmerCoach(swimmer=s)
@@ -80,7 +81,7 @@ class SwimmingCoachSeeds:
             last_pse_certification_date=self.six_month,
             swimming_pool_id=swimming_pools[1].id,
             email="peterparker@example.com",
-            password="pass",
+            password=Security.hash_password("pass"),
         )
 
         coaches = [

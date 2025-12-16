@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from typing import List
 
+from src.services.security import Security
+
 
 class RepresentativeSeeds:
     twenty_years = datetime.now() - timedelta(days=365 * 20)
@@ -16,21 +18,21 @@ class RepresentativeSeeds:
             last_name="Coulson",
             birth_date=self.twenty_years,
             email="philcoulson@example.com",
-            password="pass",
+            password=Security.hash_password("pass"),
         )
         representative_2 = Representative(
             first_name="Malcolm",
             last_name="Reynolds",
             birth_date=self.twenty_years,
             email="malcolm@example.com",
-            password="pass",
+            password=Security.hash_password("pass"),
         )
         representative_3 = Representative(
             first_name="James",
             last_name="Holden",
             birth_date=self.twenty_years,
             email="james@example.com",
-            password="pass",
+            password=Security.hash_password("pass"),
         )
 
         self.db.add_all([representative_1, representative_2, representative_3])

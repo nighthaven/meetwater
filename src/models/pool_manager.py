@@ -34,7 +34,7 @@ class PoolManager(Base):
     )
     swimming_pool_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey("swimming_pool.id"),
+        ForeignKey("swimming_pools.id"),
         nullable=False,
     )
     swimming_pool: Mapped["SwimmingPool"] = relationship(
