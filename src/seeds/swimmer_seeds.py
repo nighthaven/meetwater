@@ -27,18 +27,24 @@ class SwimmerSeeds:
             level=SwimmerLevel.INTERMEDIATE,
         )
         swimmer_2 = Swimmer(  # type: ignore[call-arg]
+            first_name="Leopold",
+            last_name="Fitz",
+            birth_date=ten_years,
+            level=SwimmerLevel.INTERMEDIATE,
+        )
+        swimmer_3 = Swimmer(  # type: ignore[call-arg]
             first_name="River",
             last_name="Tam",
             birth_date=ten_years,
             level=SwimmerLevel.INTERMEDIATE,
         )
-        swimmer_3 = Swimmer(  # type: ignore[call-arg]
+        swimmer_4 = Swimmer(  # type: ignore[call-arg]
             first_name="Amos",
             last_name="Burton",
             birth_date=ten_years,
             level=SwimmerLevel.INTERMEDIATE,
         )
-        swimmer_4 = Swimmer(  # type: ignore[call-arg]
+        swimmer_5 = Swimmer(  # type: ignore[call-arg]
             first_name="Alex",
             last_name="Kamal",
             birth_date=ten_years,
@@ -55,6 +61,7 @@ class SwimmerSeeds:
             swimmer_2,
             swimmer_3,
             swimmer_4,
+            swimmer_5,
             swimmer_without_coach,
         ]
 
@@ -74,7 +81,7 @@ class SwimmerSeeds:
             representative_id=[
                 representative.id
                 for representative in representatives
-                if representative.full_name == "Malcolm Reynolds"
+                if representative.full_name == "Phil Coulson"
             ][0],
         )
         swimmer_3_representative = SwimmerRepresentative(  # type: ignore[call-arg]
@@ -82,11 +89,19 @@ class SwimmerSeeds:
             representative_id=[
                 representative.id
                 for representative in representatives
-                if representative.full_name == "James Holden"
+                if representative.full_name == "Malcolm Reynolds"
             ][0],
         )
         swimmer_4_representative = SwimmerRepresentative(  # type: ignore[call-arg]
             swimmer_id=swimmer_4.id,
+            representative_id=[
+                representative.id
+                for representative in representatives
+                if representative.full_name == "James Holden"
+            ][0],
+        )
+        swimmer_5_representative = SwimmerRepresentative(  # type: ignore[call-arg]
+            swimmer_id=swimmer_5.id,
             representative_id=[
                 representative.id
                 for representative in representatives
@@ -106,6 +121,7 @@ class SwimmerSeeds:
             swimmer_2_representative,
             swimmer_3_representative,
             swimmer_4_representative,
+            swimmer_5_representative,
             swimmer_without_coach_representative,
         ]
         self.db.add_all(list_swimmers_representatives)
