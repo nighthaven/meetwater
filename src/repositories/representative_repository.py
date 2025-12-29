@@ -51,6 +51,17 @@ class RepresentativeRepository:
             self.db.refresh(link)
         except Exception as e:
             self.db.rollback()
+            self.db.close()
+            raise e
+
+    def update_swimmer_representative(self, link: SwimmerRepresentative):
+        try:
+            self.db.add(link)
+            self.db.commit()
+            self.db.refresh(link)
+        except Exception as e:
+            self.db.rollback()
+            self.db.close()
             raise e
 
     def get_swimmers(self, representative_id: UUID) -> List[Swimmer]:

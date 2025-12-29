@@ -8,7 +8,8 @@ def get_swimming_pool_from_subdomain(
     request: Request,
     swimming_pool_repository: SwimmingPoolRepository = Depends(),
 ) -> SwimmingPool:
-    subdomain = request.headers.get("subdomain")
+    host = request.headers.get("host")
+    subdomain = host.split(".")[0] if host else None
     if not subdomain:
         raise HTTPException(400, "Host header missing")
 

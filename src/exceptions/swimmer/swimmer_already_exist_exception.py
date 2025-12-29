@@ -1,2 +1,0 @@
-class SwimmerAlreadyExistException(Exception):
-    pass
