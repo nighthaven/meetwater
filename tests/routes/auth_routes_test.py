@@ -10,14 +10,14 @@ from tests.fixtures.user_factory import UserFactory
 
 class TestLoginUser:
     def test_login_user(self, client, security, db_session):
-        SwimmingPoolFactory(pool_name="test pool")
+        swimming_pool = SwimmingPoolFactory(pool_name="test pool")
 
         user = UserFactory(email="test@example.com")
 
         response = client.post(
             "/login",
             data={"username": user.email, "password": "pass"},
-            headers={"Host": "test-pool.monsite.com"},
+            headers={"subdomain": swimming_pool.slug},
         )
 
         assert response.status_code == 200
@@ -38,11 +38,11 @@ class TestLoginUser:
         ],
     )
     def test_incorrect_login(self, client, email, password, status_code):
-        SwimmingPoolFactory(pool_name="test pool")
+        swimming_pool = SwimmingPoolFactory(pool_name="test pool")
         response = client.post(
             "/login",
             data={"username": email, "password": password},
-            headers={"Host": "test-pool.monsite.com"},
+            headers={"subdomain": swimming_pool.slug},
         )
         assert response.status_code == status_code
         assert response.json().get("detail") == "Invalid Credential"
