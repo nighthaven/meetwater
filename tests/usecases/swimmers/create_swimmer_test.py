@@ -1,5 +1,8 @@
 from datetime import datetime, timedelta
 
+import pytest
+
+from src.exceptions.swimmer.swimmer_already_exist import SwimmerAlreadyExist
 from src.models.enums.swimmer_level import SwimmerLevel
 from src.routes.dto.swimmer.swimmer_query import SwimmerQuery
 from src.usecases.swimmers.create_swimmer import create_swimmer_usecase
@@ -28,7 +31,7 @@ class TestCreateSwimmer:
         assert swimmer_query[0].birth_date == birth_date
         assert swimmer_query[0].level == SwimmerLevel.BEGINNER
 
-    def test_create_swimmer_already_exist(
+    def test_create_swimmer_already_exist_linked_to_other_representative(
         self, representative_repo, swimmer_repo, authenticated_representative
     ):
         another_representative = RepresentativeFactory()
@@ -58,3 +61,24 @@ class TestCreateSwimmer:
             swimmer.representatives[1].representative.full_name
             == authenticated_representative.full_name
         )
+
+    def test_create_swimmer_already_exist_not_linked_to_other_representative(
+        self, representative_repo, swimmer_repo, authenticated_representative
+    ):
+        birth_date = datetime.now().date() - timedelta(days=6 * 365)
+        SwimmerFactory(
+            first_name="John",
+            last_name="Smith",
+            birth_date=birth_date,
+            representatives=[authenticated_representative],
+        )
+        query = SwimmerQuery(
+            first_name="John",
+            last_name="Smith",
+            birth_date=birth_date,
+            level=SwimmerLevel.BEGINNER,
+        )
+        with pytest.raises(SwimmerAlreadyExist):
+            create_swimmer_usecase(
+                query, representative_repo, swimmer_repo, authenticated_representative
+            )

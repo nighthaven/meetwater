@@ -1,0 +1,2 @@
+class SwimmerAlreadyExist(Exception):
+    pass

@@ -1,5 +1,6 @@
 from fastapi import Depends
 
+from src.exceptions.swimmer.swimmer_already_exist import SwimmerAlreadyExist
 from src.models.link.swimmer_representative import SwimmerRepresentative
 from src.models.representative import Representative
 from src.models.swimmer import Swimmer
@@ -43,6 +44,11 @@ def _get_swimmer_if_exist(
         query.first_name, query.last_name, query.birth_date
     )
     if swimmer_already_exist:
+        for swimmer_representative in swimmer_already_exist.representatives:
+            if current_representative == swimmer_representative.representative:
+                raise SwimmerAlreadyExist(
+                    "swimmer already exists for this representative"
+                )
         link = SwimmerRepresentative(
             swimmer=swimmer_already_exist, representative=current_representative
         )

@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, status
 from src.exceptions.representative.representative_not_found_exception import (
     RepresentativeNotFoundException,
 )
+from src.exceptions.swimmer.swimmer_already_exist import SwimmerAlreadyExist
 from src.models.representative import Representative
 from src.repositories.representative_repository import RepresentativeRepository
 from src.repositories.swimmer_repository import SwimmerRepository
@@ -40,6 +41,10 @@ def create_swimmer(
     except RepresentativeNotFoundException:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Swimmer not found"
+        )
+    except SwimmerAlreadyExist:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Swimmer already exist"
         )
 
 
