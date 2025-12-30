@@ -41,3 +41,10 @@ class TestSwimmersRoutes:
         assert response.json()[1]["last_name"] == swimmer_2.last_name
         assert response.json()[1]["birth_date"] == swimmer_2.birth_date.isoformat()
         assert response.json()[1]["level"] == swimmer_2.level.value
+
+    def test_delete_swimmer(self, representative_client, db_session):
+        representative = representative_client.user_type
+        swimmer = SwimmerFactory(representatives=[representative])
+
+        response = representative_client.delete("/swimmers/{id}".format(id=swimmer.id))
+        assert response.status_code == 204

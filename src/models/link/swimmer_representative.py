@@ -14,6 +14,9 @@ if TYPE_CHECKING:
 
 class SwimmerRepresentative(Base):
     __tablename__ = "swimmers_representatives"
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
     representative_id: Mapped[uuid.UUID] = mapped_column(
         UUID, ForeignKey("representatives.id"), primary_key=True
     )

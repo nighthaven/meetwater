@@ -70,3 +70,15 @@ class SwimmerRepository:
             self.db.rollback()
             self.db.close()
             raise e
+
+    def delete(self, swimmer_id: UUID) -> None:
+        self.db.query(Swimmer).filter_by(id=swimmer_id).delete()
+        self.db.commit()
+        return
+
+    def delete_swimmer_representative(self, swimmer_representative_id: UUID) -> None:
+        self.db.query(SwimmerRepresentative).filter_by(
+            id=swimmer_representative_id
+        ).delete()
+        self.db.commit()
+        return
