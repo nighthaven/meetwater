@@ -1,4 +1,6 @@
 import pytest
+from unittest.mock import Mock
+from fastapi import Request
 from fastapi.testclient import TestClient
 from src.main import app
 from src.models import get_db, Base
@@ -255,3 +257,15 @@ def swimming_coach_client(db_session, make_authenticated_client):
     swimming_pool = SwimmingPoolFactory(pool_name="swimming pool for domain")
     db_session.commit()
     return make_authenticated_client(swimming_coach, swimming_pool)
+
+
+@pytest.fixture
+def mock_request_with_subdomain():
+    def _create_mock_request(subdomain: str):
+        mock_request = Mock(spec=Request)
+        mock_headers = Mock()
+        mock_headers.get.return_value = subdomain
+        mock_request.headers = mock_headers
+        return mock_request
+
+    return _create_mock_request

@@ -2,6 +2,9 @@ from fastapi import Request, HTTPException, Depends
 
 from src.models.swimming_pool import SwimmingPool
 from src.repositories.swimming_pool_repository import SwimmingPoolRepository
+from src.usecases.validations.swimming_pool_validations import (
+    get_and_validate_swimming_pool_by_slug,
+)
 
 
 def get_swimming_pool_from_subdomain(
@@ -12,9 +15,9 @@ def get_swimming_pool_from_subdomain(
     if not subdomain:
         raise HTTPException(400, "Host header missing")
 
-    swimming_pool = swimming_pool_repository.find_by_slug(subdomain)
-    if not swimming_pool:
-        raise HTTPException(400, "Subdomain not found")
+    swimming_pool = get_and_validate_swimming_pool_by_slug(
+        subdomain, swimming_pool_repository
+    )
     return swimming_pool
 
 
