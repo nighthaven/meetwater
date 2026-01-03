@@ -14,11 +14,12 @@ class TestGetSwimmingPool:
 
         response = get_swimming_pool_from_slug(mock_request, swimming_pool_repo)
 
-        assert response.pool_name == swimming_pool.pool_name
-        assert response.slug == swimming_pool.slug
-        assert response.address == swimming_pool.address
-        assert response.city == swimming_pool.city
-        assert response.post_code == swimming_pool.post_code
+        assert response["pool_name"] == swimming_pool.pool_name
+        assert response["slug"] == swimming_pool.slug
+        assert response["address"] == swimming_pool.address
+        assert response["city"] == swimming_pool.city
+        assert response["post_code"] == swimming_pool.post_code
+        assert response["schedules"] == swimming_pool.schedules
 
     def test_get_swimming_pool_not_found(
         self, swimming_pool_repo, mock_request_with_subdomain

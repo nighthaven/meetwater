@@ -13,6 +13,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship  # type: ignore[a
 
 from src.models import Base
 from src.models.pool_manager import PoolManager
+from src.models.swimming_pool_schedule import SwimmingPoolSchedule
 from src.services.slugify import slugify
 
 if TYPE_CHECKING:
@@ -38,6 +39,11 @@ class SwimmingPool(Base):
         TIMESTAMP(),
         server_default=func.now(),
         nullable=False,
+    )
+    schedules: Mapped[list[SwimmingPoolSchedule]] = relationship(
+        "SwimmingPoolSchedule",
+        back_populates="swimming_pool",
+        cascade="all, delete-orphan",
     )
     coaches: Mapped[list["SwimmingCoach"]] = relationship(
         "SwimmingCoach", back_populates="swimming_pool", cascade="all, delete-orphan"

@@ -6,6 +6,7 @@ from src.models import SessionLocal
 from src.seeds.clear_tables import clear_tables
 from src.seeds.swimmer_seeds import SwimmerSeeds
 from src.seeds.swimming_coach_seeds import SwimmingCoachSeeds
+from src.seeds.swimming_pool_schedule_seeds import SwimmingPoolScheduleSeeds
 from src.seeds.swimming_pool_seeds import SwimmingPoolSeeds
 
 
@@ -20,6 +21,7 @@ def seed_all() -> None:
     swimming_coach_seeds = SwimmingCoachSeeds(db=session)
     coaches_schedules_seeds = CoachScheduleSeeds(db=session)
     booking_seeds = BookingsSeeds(db=session)
+    swimming_pool_schedule_seeds = SwimmingPoolScheduleSeeds(db=session)
 
     admin_seeds.create_admin_seeds()
     representatives = representative_seeds.create_representatives_seeds()
@@ -30,6 +32,7 @@ def seed_all() -> None:
     )
     coaches_schedules_seeds.create_coach_schedule(swimming_coaches)
     booking_seeds.create_bookings_seeds(representatives)
+    swimming_pool_schedule_seeds.create_swimming_pool_schedule(swimming_pools)
 
     session.commit()
     session.close()

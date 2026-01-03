@@ -9,6 +9,9 @@ from src.exceptions.swimming_pool.swimming_pool_not_found_exception import (
 )
 from src.models.representative import Representative
 from src.repositories.swimming_pool_repository import SwimmingPoolRepository
+from src.routes.dto.swimming_pool.swimming_pool_response_model import (
+    SwimmingPoolResponseModel,
+)
 from src.services.security import Security
 from src.usecases.swimming_pool.get_swimming_pool import get_swimming_pool_from_slug
 
@@ -18,7 +21,9 @@ router = APIRouter(
 )
 
 
-@router.get("/", status_code=status.HTTP_200_OK)
+@router.get(
+    "/", status_code=status.HTTP_200_OK, response_model=SwimmingPoolResponseModel
+)
 def get_swimming_pool(
     request: Request,
     swimming_pool_repository: Annotated[Any, Depends(SwimmingPoolRepository)],
