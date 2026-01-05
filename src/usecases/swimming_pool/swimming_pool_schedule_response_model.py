@@ -1,9 +1,10 @@
+from uuid import UUID
 from pydantic import BaseModel, ConfigDict
 from datetime import time
 
 
 class SwimmingPoolScheduleResponseModel(BaseModel):
-    id: str
+    id: UUID
     day_of_week: str
     opening_time: time
     closing_time: time

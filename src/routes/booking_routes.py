@@ -95,6 +95,7 @@ def get_bookings(
             serialized.append(
                 BookingResponseModel.model_validate(
                     {
+                        "id": booking.id,
                         **booking.__dict__,
                         "swimmers": swimmers,
                         "swimming_coach_name": (
