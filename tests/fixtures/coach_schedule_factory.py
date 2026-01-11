@@ -12,7 +12,7 @@ class CoachScheduleFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ign
         sqlalchemy_session = None
         sqlalchemy_session_persistence = "commit"
 
-    activity = CoachActivity.AVAILABLE
+    activity = CoachActivity.CHILD_INTERMEDIATE
     scheduled_at = factory.LazyFunction(
         lambda: DateTimeService.futur_date_and_time(1, 14).astimezone(timezone.utc)
     )

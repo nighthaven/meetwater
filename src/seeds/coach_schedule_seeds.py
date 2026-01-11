@@ -70,8 +70,18 @@ class CoachScheduleSeeds:
                         ][0],
                     ),
                     CoachSchedule(
-                        activity=CoachActivity.AVAILABLE,
+                        activity=CoachActivity.CHILD_INTERMEDIATE,
                         scheduled_at=DateTimeService.futur_date_and_time(3, 14),
+                        duration_minutes=60 * 4,
+                        swimming_coach_id=[
+                            coach.id
+                            for coach in swimming_coaches
+                            if coach.full_name == swimming_coach.full_name
+                        ][0],
+                    ),
+                    CoachSchedule(
+                        activity=CoachActivity.ADULT_BEGINNER,
+                        scheduled_at=DateTimeService.futur_date_and_time(4, 14),
                         duration_minutes=60 * 4,
                         swimming_coach_id=[
                             coach.id

@@ -39,7 +39,7 @@ class SwimmingCoachRepository:
             raise e
 
     def get_all_available_coach(
-        self, appointment_at: datetime, duration: int
+        self, appointment_at: datetime, duration: int, coach_planning: CoachActivity
     ) -> list[SwimmingCoach]:
         requested_start = appointment_at
         requested_end = appointment_at + timedelta(minutes=duration)
@@ -47,7 +47,7 @@ class SwimmingCoachRepository:
         query = (
             self.db.query(SwimmingCoach)
             .join(CoachSchedule)
-            .filter(CoachSchedule.activity == CoachActivity.AVAILABLE)
+            .filter(CoachSchedule.activity == coach_planning)
             .outerjoin(Booking)
             .filter(
                 (Booking.id.is_(None))

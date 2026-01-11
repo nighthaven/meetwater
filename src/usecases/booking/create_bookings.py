@@ -1,11 +1,14 @@
 from uuid import UUID
-from datetime import timedelta, datetime, timezone
+from datetime import timedelta, datetime, timezone, date
 from typing import List
 
 from fastapi import Depends
 
 from src.exceptions.representative.representative_not_linked_to_swimmer_exception import (
     RepresentativeNotLinkedToSwimmerException,
+)
+from src.exceptions.swimmer.swimmers_not_same_age_or_level import (
+    SwimmersNotSameAgeOrLevel,
 )
 from src.exceptions.swimming_coach.no_coach_available import NoCoachAvailable
 from src.models.enums.coach_activity import CoachActivity
@@ -25,6 +28,7 @@ from src.models.swimming_coach import SwimmingCoach
 from src.repositories.booking_repository import BookingRepository
 from src.repositories.swimmer_repository import SwimmerRepository
 from src.routes.dto.booking.booking_query import BookingQuery
+from src.usecases.booking.domain.planning_mapping import get_coach_activity
 from src.usecases.validations.swimmer_validations import validate_and_return_swimmer
 
 
@@ -80,7 +84,26 @@ def _check_and_return_selected_swimmer(
             selected_swimmer.bookings, datetime_query
         )
         selected_swimmers.append(selected_swimmer)
+    _validate_selected_swimmer_same_age_and_level(selected_swimmers)
     return selected_swimmers
+
+
+def _validate_selected_swimmer_same_age_and_level(swimmers: List[Swimmer]) -> None:
+    level_first_swimmer = swimmers[0].level
+    is_adult_first_swimmer = _is_adult(swimmers[0].birth_date)
+    for swimmer in swimmers:
+        if (
+            swimmer.level != level_first_swimmer
+            or _is_adult(swimmer.birth_date) != is_adult_first_swimmer
+        ):
+            raise SwimmersNotSameAgeOrLevel("swimmers not same age or level")
+    return
+
+
+def _is_adult(birth_date: date) -> bool:
+    today = date.today()
+    eighteen_years_ago = today - timedelta(days=365 * 18)
+    return birth_date <= eighteen_years_ago
 
 
 def _validate_representative_have_swimmers_and_query_contain_swimmer(
@@ -126,11 +149,15 @@ def _assign_validate_and_return_swimming_coach(
     swimmer_repository: SwimmerRepository,
     swimming_coach_repository: SwimmingCoachRepository,
 ) -> SwimmingCoach:
-    list_coaches = [coach for swimmer in list_swimmers for coach in swimmer.coaches]
+    is_adult_swimmer = _is_adult(list_swimmers[0].birth_date)
+    coach_planning_to_match = get_coach_activity(
+        is_adult_swimmer, list_swimmers[0].level
+    )
     coach = None
+    list_coaches = [coach for swimmer in list_swimmers for coach in swimmer.coaches]
     if list_coaches:
         list_coaches = _filter_schedule_for_coaches(
-            list_coaches, appointement_at, duration_minutes
+            list_coaches, coach_planning_to_match, appointement_at, duration_minutes
         )
         list_coaches = _filter_coach_without_appointement(
             list_coaches, appointement_at, duration_minutes
@@ -138,7 +165,7 @@ def _assign_validate_and_return_swimming_coach(
         coach = _choose_coach(list_coaches)
     if not list_coaches or not coach:
         list_coaches = swimming_coach_repository.get_all_available_coach(
-            appointement_at, duration_minutes
+            appointement_at, duration_minutes, coach_planning_to_match
         )
         if not list_coaches:
             raise NoCoachAvailable()
@@ -151,6 +178,7 @@ def _assign_validate_and_return_swimming_coach(
 
 def _filter_schedule_for_coaches(
     list_coaches: List[SwimmingCoach],
+    coach_activity: CoachActivity,
     appointement_at: datetime,
     duration_minutes: int,
 ) -> List[SwimmingCoach]:
@@ -159,7 +187,7 @@ def _filter_schedule_for_coaches(
     for coach in list_coaches:
         for schedule in coach.schedules:
             if (
-                schedule.activity == CoachActivity.AVAILABLE
+                schedule.activity == coach_activity
                 and appointement_at <= schedule.scheduled_at < appointment_over
             ):
                 list_selected_coaches.append(coach)

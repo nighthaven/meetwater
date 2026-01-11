@@ -1,0 +1,2 @@
+class SwimmersNotSameAgeOrLevel(Exception):
+    pass

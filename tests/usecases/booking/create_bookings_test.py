@@ -1,4 +1,4 @@
-from datetime import timezone
+from datetime import timezone, date
 from uuid import UUID
 
 import pytest
@@ -10,9 +10,13 @@ from src.exceptions.representative.representative_not_linked_to_swimmer_exceptio
     RepresentativeNotLinkedToSwimmerException,
 )
 from src.exceptions.swimmer.swimmer_not_found_exception import SwimmerNotFoundException
+from src.exceptions.swimmer.swimmers_not_same_age_or_level import (
+    SwimmersNotSameAgeOrLevel,
+)
 from src.exceptions.swimming_coach.no_coach_available import NoCoachAvailable
 from src.models.booking import Booking
 from src.models.enums.coach_activity import CoachActivity
+from src.models.enums.swimmer_level import SwimmerLevel
 from src.routes.dto.booking.booking_query import BookingQuery
 from src.services.date_time_service import DateTimeService
 from src.usecases.booking.create_bookings import create_bookings_usecase
@@ -299,6 +303,79 @@ class TestCreateBooking:
         )
 
         with pytest.raises(NoCoachAvailable, match="No coach available"):
+            create_bookings_usecase(
+                query,
+                swimmer_repo,
+                booking_repo,
+                swimming_coach_repo,
+                authenticated_representative,
+            )
+
+    def test_create_booking_with_multiple_swimmers_not_same_level(
+        self,
+        db_session,
+        swimmer_repo,
+        booking_repo,
+        swimming_coach_repo,
+        authenticated_representative,
+    ):
+        swimmer_1 = SwimmerFactory(
+            representatives=[authenticated_representative],
+            level=SwimmerLevel.INTERMEDIATE,
+        )
+        swimmer_2 = SwimmerFactory(
+            representatives=[authenticated_representative], level=SwimmerLevel.BEGINNER
+        )
+        swimming_coach = SwimmingCoachFactory(swimmers=[swimmer_1, swimmer_2])
+        for schedule in swimming_coach.schedules:
+            schedule.scheduled_at = schedule.scheduled_at.astimezone(timezone.utc)
+        date_appointement = DateTimeService.futur_date_and_time(1, 14)
+
+        query = BookingQuery(
+            appointment_at=date_appointement,
+            swimmers_ids=[swimmer_1.id, swimmer_2.id],
+        )
+
+        with pytest.raises(
+            SwimmersNotSameAgeOrLevel, match="swimmers not same age or level"
+        ):
+            create_bookings_usecase(
+                query,
+                swimmer_repo,
+                booking_repo,
+                swimming_coach_repo,
+                authenticated_representative,
+            )
+
+    def test_create_booking_with_multiple_swimmers_not_same_age_categories(
+        self,
+        db_session,
+        swimmer_repo,
+        booking_repo,
+        swimming_coach_repo,
+        authenticated_representative,
+    ):
+        swimmer_adult = SwimmerFactory(
+            representatives=[authenticated_representative],
+            birth_date=date(date.today().year - 20, 1, 1),
+        )
+        swimmer_child = SwimmerFactory(
+            representatives=[authenticated_representative],
+            birth_date=date(date.today().year - 6, 1, 1),
+        )
+        swimming_coach = SwimmingCoachFactory(swimmers=[swimmer_adult, swimmer_child])
+        for schedule in swimming_coach.schedules:
+            schedule.scheduled_at = schedule.scheduled_at.astimezone(timezone.utc)
+        date_appointement = DateTimeService.futur_date_and_time(1, 14)
+
+        query = BookingQuery(
+            appointment_at=date_appointement,
+            swimmers_ids=[swimmer_adult.id, swimmer_child.id],
+        )
+
+        with pytest.raises(
+            SwimmersNotSameAgeOrLevel, match="swimmers not same age or level"
+        ):
             create_bookings_usecase(
                 query,
                 swimmer_repo,
