@@ -1,5 +1,7 @@
 from src.models.booking import Booking
+from src.models.enums.coach_activity import CoachActivity
 from tests.fixtures.booking_factory import BookingFactory
+from tests.fixtures.coach_schedule_factory import CoachScheduleFactory
 from tests.fixtures.swimmer_factory import SwimmerFactory
 from tests.fixtures.swimming_coach_factory import SwimmingCoachFactory
 from datetime import datetime, timezone, timedelta
@@ -10,6 +12,13 @@ class TestBookingRoutes:
         swimmer = SwimmerFactory(representatives=[representative_client.user_type])
         swimming_coach = SwimmingCoachFactory()
         date_appointement = datetime.now(timezone.utc) + timedelta(days=1)
+        CoachScheduleFactory(
+            activity=CoachActivity.CHILD_INTERMEDIATE,
+            scheduled_at=date_appointement - timedelta(minutes=10),
+            duration_minutes=300,
+            swimming_coach=swimming_coach,
+        )
+
         payload = {
             "appointment_at": date_appointement.isoformat(),
             "swimmers_ids": [str(swimmer.id)],
