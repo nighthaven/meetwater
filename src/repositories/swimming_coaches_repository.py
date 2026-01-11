@@ -47,7 +47,17 @@ class SwimmingCoachRepository:
         query = (
             self.db.query(SwimmingCoach)
             .join(CoachSchedule)
-            .filter(CoachSchedule.activity == coach_planning)
+            .filter(
+                CoachSchedule.activity == coach_planning,
+                CoachSchedule.scheduled_at <= requested_start,
+                requested_end
+                <= (
+                    CoachSchedule.scheduled_at
+                    + func.make_interval(
+                        0, 0, 0, 0, 0, CoachSchedule.duration_minutes, 0
+                    )
+                ),
+            )
             .outerjoin(Booking)
             .filter(
                 (Booking.id.is_(None))

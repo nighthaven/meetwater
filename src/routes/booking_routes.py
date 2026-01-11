@@ -13,6 +13,10 @@ from src.exceptions.representative.representative_not_linked_to_swimmer_exceptio
     RepresentativeNotLinkedToSwimmerException,
 )
 from src.exceptions.swimmer.swimmer_not_found_exception import SwimmerNotFoundException
+from src.exceptions.swimmer.swimmers_not_same_age_or_level import (
+    SwimmersNotSameAgeOrLevel,
+)
+from src.exceptions.swimming_coach.no_coach_available import NoCoachAvailable
 from src.exceptions.swimming_coach.swimming_coach_not_found_exception import (
     SwimmingCoachNotFoundException,
 )
@@ -70,9 +74,18 @@ def create_booking(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="A booking already exist for this swimmer at this specific date and time",
         )
+    except SwimmersNotSameAgeOrLevel:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Swimmers don't have same group age or level",
+        )
     except SwimmingCoachNotFoundException:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Swimming coach not found"
+        )
+    except NoCoachAvailable:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="No coach available"
         )
 
 
