@@ -5,6 +5,7 @@ from src.models import get_db
 
 from sqlalchemy.orm import Session, joinedload
 
+from src.models.swimming_coach import SwimmingCoach
 from src.models.swimming_pool import SwimmingPool
 
 
@@ -19,6 +20,9 @@ class SwimmingPoolRepository:
         return (
             self.db.query(SwimmingPool)
             .options(joinedload(SwimmingPool.schedules))
+            .options(
+                joinedload(SwimmingPool.coaches).joinedload(SwimmingCoach.schedules)
+            )
             .filter_by(slug=slug)
             .one_or_none()
         )

@@ -19,6 +19,9 @@ def get_swimming_pool_from_slug(
     swimming_pool = get_and_validate_swimming_pool_by_slug(
         slug, swimming_pool_repository
     )
+    coaches_schedules = [
+        schedule for coach in swimming_pool.coaches for schedule in coach.schedules
+    ]
     return {
         "pool_name": swimming_pool.pool_name,
         "slug": swimming_pool.slug,
@@ -26,4 +29,5 @@ def get_swimming_pool_from_slug(
         "city": swimming_pool.city,
         "post_code": swimming_pool.post_code,
         "schedules": swimming_pool.schedules,
+        "coaches_schedules": coaches_schedules,
     }
