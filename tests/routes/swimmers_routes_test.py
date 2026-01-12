@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 from src.models.swimmer import Swimmer
 from tests.fixtures.swimmer_factory import SwimmerFactory
+from tests.fixtures.swimming_coach_factory import SwimmingCoachFactory
 
 
 class TestSwimmersRoutes:
@@ -28,20 +29,25 @@ class TestSwimmersRoutes:
         representative = representative_client.user_type
         swimmer_1 = SwimmerFactory(representatives=[representative])
         swimmer_2 = SwimmerFactory(representatives=[representative])
+        swimming_coach = SwimmingCoachFactory(swimmers=[swimmer_1, swimmer_2])
 
         response = representative_client.get("/swimmers")
 
         assert response.status_code == 200
         assert len(response.json()) == 2
-        assert response.json()[0]["id"] == str(swimmer_1.id)
-        assert response.json()[0]["first_name"] == swimmer_1.first_name
-        assert response.json()[0]["last_name"] == swimmer_1.last_name
-        assert response.json()[0]["birth_date"] == swimmer_1.birth_date.isoformat()
-        assert response.json()[0]["level"] == swimmer_1.level.value
-        assert response.json()[1]["first_name"] == swimmer_2.first_name
-        assert response.json()[1]["last_name"] == swimmer_2.last_name
-        assert response.json()[1]["birth_date"] == swimmer_2.birth_date.isoformat()
-        assert response.json()[1]["level"] == swimmer_2.level.value
+        assert response.json()[0]["id"] == str(swimmer_2.id)
+        assert response.json()[0]["first_name"] == swimmer_2.first_name
+        assert response.json()[0]["last_name"] == swimmer_2.last_name
+        assert response.json()[0]["birth_date"] == swimmer_2.birth_date.isoformat()
+        assert response.json()[0]["level"] == swimmer_2.level.value
+        assert (
+            response.json()[0]["coaches"][0]["first_name"] == swimming_coach.first_name
+        )
+        assert response.json()[1]["id"] == str(swimmer_1.id)
+        assert response.json()[1]["first_name"] == swimmer_1.first_name
+        assert response.json()[1]["last_name"] == swimmer_1.last_name
+        assert response.json()[1]["birth_date"] == swimmer_1.birth_date.isoformat()
+        assert response.json()[1]["level"] == swimmer_1.level.value
 
     def test_delete_swimmer(self, representative_client, db_session):
         representative = representative_client.user_type

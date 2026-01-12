@@ -7,6 +7,7 @@ from datetime import date
 from sqlalchemy.orm import Session, joinedload
 from fastapi import Depends
 from src.models import get_db
+from src.models.swimming_coach import SwimmingCoach
 
 
 class SwimmerRepository:
@@ -55,7 +56,15 @@ class SwimmerRepository:
                 self.db.query(Swimmer)
                 .join(Swimmer.representatives)
                 .filter(SwimmerRepresentative.representative_id == representative_id)
-                .options(joinedload(Swimmer.representatives))
+                .options(
+                    joinedload(Swimmer.representatives).joinedload(
+                        SwimmerRepresentative.representative
+                    ),
+                    joinedload(Swimmer.coaches).options(
+                        joinedload(SwimmingCoach.schedules),
+                        joinedload(SwimmingCoach.user),
+                    ),
+                )
                 .all()
             )
         except Exception as e:

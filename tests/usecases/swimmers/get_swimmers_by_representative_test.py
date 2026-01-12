@@ -17,10 +17,10 @@ class TestGetSwimmersByRepresentative:
         )
 
         assert len(response) == 2
-        assert response[0].first_name == swimmer_1.first_name
-        assert response[0].last_name == swimmer_1.last_name
-        assert response[0].birth_date == swimmer_1.birth_date
-        assert response[1].first_name == swimmer_2.first_name
-        assert response[1].last_name == swimmer_2.last_name
-        assert response[1].birth_date == swimmer_2.birth_date
+        assert response[0].first_name == swimmer_2.first_name
+        assert response[0].last_name == swimmer_2.last_name
+        assert response[0].birth_date == swimmer_2.birth_date
+        assert response[1].first_name == swimmer_1.first_name
+        assert response[1].last_name == swimmer_1.last_name
+        assert response[1].birth_date == swimmer_1.birth_date
         assert unrelated_swimmer not in response
