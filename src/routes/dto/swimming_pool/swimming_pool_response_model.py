@@ -1,7 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 from typing import List
 
-from src.usecases.swimming_pool.swimming_pool_schedule_response_model import (
+from src.routes.dto.swimming_pool.swimming_pool_schedule_response_model import (
     SwimmingPoolScheduleResponseModel,
 )
 
