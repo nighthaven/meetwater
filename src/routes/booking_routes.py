@@ -104,7 +104,9 @@ def get_bookings(
         )
         serialized = []
         for booking in bookings:
-            swimmers = [sb.swimmer for sb in booking.swimmers]
+            swimmers = [
+                swimmers_bookings.swimmer for swimmers_bookings in booking.swimmers
+            ]
             serialized.append(
                 BookingResponseModel.model_validate(
                     {

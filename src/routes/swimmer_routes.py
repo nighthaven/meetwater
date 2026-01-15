@@ -12,7 +12,9 @@ from src.models.representative import Representative
 from src.repositories.representative_repository import RepresentativeRepository
 from src.repositories.swimmer_repository import SwimmerRepository
 from src.routes.dto.swimmer.swimmer_query import SwimmerQuery
-from src.routes.dto.swimmer.swimmer_response_model import SwimmerResponseModel
+from src.routes.dto.swimmer.swimmer_with_coach_response_model import (
+    SwimmerWithCoachAndSchedulesResponseModel,
+)
 from src.services.security import Security
 from src.usecases.swimmers.create_swimmer import create_swimmer_usecase
 from src.usecases.swimmers.delete_swimmer import delete_swimmer_usecase
@@ -51,7 +53,9 @@ def create_swimmer(
 
 
 @router.get(
-    "/", status_code=status.HTTP_200_OK, response_model=List[SwimmerResponseModel]
+    "/",
+    status_code=status.HTTP_200_OK,
+    response_model=List[SwimmerWithCoachAndSchedulesResponseModel],
 )
 def get_swimmers(
     swimmer_repository: Annotated[Any, Depends(SwimmerRepository)],
