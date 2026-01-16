@@ -40,5 +40,17 @@ The purpose of this application is multiple :
 The scripts allowing the localhost database can be used with this terminal command
 
 ```shell
-python3 -m src.seeds.seed_all
+uv run python -m src.seeds.seed_all
+```
+
+## start the API
+
+```shell
+uvicorn src.main:app --reload
+```
+
+## start the tests
+
+```shell
+uv run pytest
 ```
