@@ -13,3 +13,7 @@ wheels/
 #env
 .env.test
 .env.dev
+.env
+
+
+kafka-consumer
