@@ -1,0 +1,2 @@
+class SwimmingCoachAlreadyHaveAnAppointement(Exception):
+    pass

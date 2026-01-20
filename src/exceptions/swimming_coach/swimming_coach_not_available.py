@@ -1,0 +1,2 @@
+class SwimmingCoachNotAvailable(Exception):
+    pass

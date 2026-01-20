@@ -53,3 +53,9 @@ uvicorn src.main:app --reload
 ```shell
 uv run pytest
 ```
+
+## activating the linters for coding
+
+```shell
+uv run pre-commit run --all-files
+```

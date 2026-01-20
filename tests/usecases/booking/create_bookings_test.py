@@ -14,6 +14,12 @@ from src.exceptions.swimmer.swimmers_not_same_age_or_level import (
     SwimmersNotSameAgeOrLevel,
 )
 from src.exceptions.swimming_coach.no_coach_available import NoCoachAvailable
+from src.exceptions.swimming_coach.swimming_coach_already_have_an_appointement import (
+    SwimmingCoachAlreadyHaveAnAppointement,
+)
+from src.exceptions.swimming_coach.swimming_coach_not_available import (
+    SwimmingCoachNotAvailable,
+)
 from src.models.booking import Booking
 from src.models.enums.coach_activity import CoachActivity
 from src.models.enums.swimmer_level import SwimmerLevel
@@ -27,6 +33,103 @@ from tests.fixtures.swimming_coach_factory import SwimmingCoachFactory
 
 
 class TestCreateBooking:
+    def test_create_booking_with_selected_coach_assignated(
+        self,
+        db_session,
+        swimmer_repo,
+        booking_repo,
+        swimming_coach_repo,
+        authenticated_representative,
+    ):
+        swimmer = SwimmerFactory(representatives=[authenticated_representative])
+        swimming_coach = SwimmingCoachFactory(swimmers=[swimmer])
+        for schedule in swimming_coach.schedules:
+            schedule.scheduled_at = schedule.scheduled_at.astimezone(timezone.utc)
+        date_appointement = DateTimeService.futur_date_and_time(1, 14)
+
+        query = BookingQuery(
+            appointment_at=date_appointement,
+            swimmers_ids=[swimmer.id],
+            swimming_coach_id=swimming_coach.id,
+        )
+
+        create_bookings_usecase(
+            query,
+            swimmer_repo,
+            booking_repo,
+            swimming_coach_repo,
+            authenticated_representative,
+        )
+
+        query_booking = db_session.query(Booking).all()
+        assert len(query_booking) == 1
+        assert query_booking[0].appointment_at == date_appointement
+        assert query_booking[0].swimmers[0].swimmer.id == swimmer.id
+        assert query_booking[0].swimming_coach_id == swimming_coach.id
+
+    def test_create_booking_with_selected_coach_assignated_but_already_have_an_appointement(
+        self,
+        db_session,
+        swimmer_repo,
+        booking_repo,
+        swimming_coach_repo,
+        authenticated_representative,
+    ):
+        swimmer = SwimmerFactory(representatives=[authenticated_representative])
+        date_appointement = DateTimeService.futur_date_and_time(1, 14)
+        swimming_coach = SwimmingCoachFactory(swimmers=[swimmer])
+        BookingFactory(appointment_at=date_appointement, swimming_coach=swimming_coach)
+        for schedule in swimming_coach.schedules:
+            schedule.scheduled_at = schedule.scheduled_at.astimezone(timezone.utc)
+
+        query = BookingQuery(
+            appointment_at=date_appointement,
+            swimmers_ids=[swimmer.id],
+            swimming_coach_id=swimming_coach.id,
+        )
+
+        with pytest.raises(
+            SwimmingCoachAlreadyHaveAnAppointement,
+            match="Coach already have an appointement at this time.",
+        ):
+            create_bookings_usecase(
+                query,
+                swimmer_repo,
+                booking_repo,
+                swimming_coach_repo,
+                authenticated_representative,
+            )
+
+    def test_create_booking_with_selected_coach_assignated_but_date_doesn_t_match(
+        self,
+        db_session,
+        swimmer_repo,
+        booking_repo,
+        swimming_coach_repo,
+        authenticated_representative,
+    ):
+        swimmer = SwimmerFactory(representatives=[authenticated_representative])
+        date_appointement = DateTimeService.futur_date_and_time(1, 14)
+        schedule = CoachScheduleFactory.build(scheduled_at=date_appointement)
+        swimming_coach = SwimmingCoachFactory(schedules=[schedule], swimmers=[swimmer])
+        for schedule in swimming_coach.schedules:
+            schedule.scheduled_at = schedule.scheduled_at.astimezone(timezone.utc)
+
+        query = BookingQuery(
+            appointment_at=date_appointement,
+            swimmers_ids=[swimmer.id],
+            swimming_coach_id=swimming_coach.id,
+        )
+
+        with pytest.raises(SwimmingCoachNotAvailable, match="Coach not available."):
+            create_bookings_usecase(
+                query,
+                swimmer_repo,
+                booking_repo,
+                swimming_coach_repo,
+                authenticated_representative,
+            )
+
     def test_create_booking_with_coach_assignated(
         self,
         db_session,

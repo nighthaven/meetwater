@@ -8,7 +8,7 @@ from datetime import datetime, timezone, timedelta
 
 
 class TestBookingRoutes:
-    def test_booking_route(self, representative_client, db_session):
+    def test_create_booking_route(self, representative_client, db_session):
         swimmer = SwimmerFactory(representatives=[representative_client.user_type])
         swimming_coach = SwimmingCoachFactory()
         date_appointement = datetime.now(timezone.utc) + timedelta(days=1)
@@ -22,7 +22,7 @@ class TestBookingRoutes:
         payload = {
             "appointment_at": date_appointement.isoformat(),
             "swimmers_ids": [str(swimmer.id)],
-            "swimming_coach_id": str(swimming_coach.id),
+            "swimming_coach_id": None,
         }
         response = representative_client.post("/bookings", json=payload)
 

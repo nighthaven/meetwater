@@ -1,6 +1,6 @@
 from uuid import UUID
 from datetime import timedelta, datetime, timezone, date
-from typing import List
+from typing import List, Optional
 
 from fastapi import Depends
 
@@ -11,6 +11,12 @@ from src.exceptions.swimmer.swimmers_not_same_age_or_level import (
     SwimmersNotSameAgeOrLevel,
 )
 from src.exceptions.swimming_coach.no_coach_available import NoCoachAvailable
+from src.exceptions.swimming_coach.swimming_coach_already_have_an_appointement import (
+    SwimmingCoachAlreadyHaveAnAppointement,
+)
+from src.exceptions.swimming_coach.swimming_coach_not_available import (
+    SwimmingCoachNotAvailable,
+)
 from src.models.enums.coach_activity import CoachActivity
 from src.models.link.swimmer_representative import SwimmerRepresentative
 from src.models.link.swimmers_bookings import SwimmerBooking
@@ -30,6 +36,9 @@ from src.repositories.swimmer_repository import SwimmerRepository
 from src.routes.dto.booking.booking_query import BookingQuery
 from src.usecases.booking.domain.planning_mapping import get_coach_activity
 from src.usecases.validations.swimmer_validations import validate_and_return_swimmer
+from src.usecases.validations.swimming_coach_validations import (
+    get_and_validate_swimming_coach,
+)
 
 
 def create_bookings_usecase(
@@ -54,6 +63,7 @@ def create_bookings_usecase(
         selected_swimmers,
         booking_query.appointment_at,
         booking_query.duration_minutes,
+        booking_query.swimming_coach_id,
         swimmer_repository,
         swimming_coach_repository,
     )
@@ -146,6 +156,7 @@ def _assign_validate_and_return_swimming_coach(
     list_swimmers: List[Swimmer],
     appointement_at: datetime,
     duration_minutes: int,
+    swimming_coach_id: Optional[UUID],
     swimmer_repository: SwimmerRepository,
     swimming_coach_repository: SwimmingCoachRepository,
 ) -> SwimmingCoach:
@@ -153,7 +164,18 @@ def _assign_validate_and_return_swimming_coach(
     coach_planning_to_match = get_coach_activity(
         is_adult_swimmer, list_swimmers[0].level
     )
-    coach = None
+
+    if swimming_coach_id:
+        return _find_selected_swimming_coach(
+            swimming_coach_id,
+            appointement_at,
+            duration_minutes,
+            coach_planning_to_match,
+            swimming_coach_repository,
+        )
+    else:
+        coach = None
+
     list_coaches = [coach for swimmer in list_swimmers for coach in swimmer.coaches]
     if list_coaches:
         list_coaches = _filter_schedule_for_coaches(
@@ -174,6 +196,38 @@ def _assign_validate_and_return_swimming_coach(
             raise NoCoachAvailable()
     _assign_coach_to_swimmer(list_swimmers, coach, swimmer_repository)
     return coach
+
+
+def _find_selected_swimming_coach(
+    swimming_coach_id: UUID,
+    appointement_at: datetime,
+    duration_minutes: int,
+    coach_planning_to_match: CoachActivity,
+    swimming_coach_repository: SwimmingCoachRepository,
+) -> SwimmingCoach:
+    swimming_coach = get_and_validate_swimming_coach(
+        swimming_coach_id, swimming_coach_repository
+    )
+    for booking in swimming_coach.bookings:
+        booking_over = booking.appointment_at + timedelta(
+            minutes=booking.duration_minutes
+        )
+        if booking.appointment_at <= appointement_at < booking_over:
+            raise SwimmingCoachAlreadyHaveAnAppointement(
+                "Coach already have an appointement at this time."
+            )
+
+    appointment_over = appointement_at + timedelta(minutes=duration_minutes)
+    is_schedule_matching = False
+    for schedule in swimming_coach.schedules:
+        if (
+            schedule.activity == coach_planning_to_match
+            and appointement_at <= schedule.scheduled_at < appointment_over
+        ):
+            is_schedule_matching = True
+    if not is_schedule_matching:
+        raise SwimmingCoachNotAvailable("Coach not available.")
+    return swimming_coach
 
 
 def _filter_schedule_for_coaches(
