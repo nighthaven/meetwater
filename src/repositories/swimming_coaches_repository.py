@@ -30,6 +30,7 @@ class SwimmingCoachRepository:
         try:
             return (
                 self.db.query(SwimmingCoach)
+                .options(joinedload(SwimmingCoach.schedules))
                 .filter_by(id=swimming_coach_id)
                 .one_or_none()
             )

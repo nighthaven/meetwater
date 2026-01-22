@@ -1,0 +1,2 @@
+class SwimmingCoachNotCurrentCoach(Exception):
+    pass
