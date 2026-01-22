@@ -1,6 +1,7 @@
 from datetime import timezone, datetime
 from src.models.enums.coach_activity import CoachActivity
 from src.services.date_time_service import DateTimeService
+from tests.fixtures.coach_schedule_factory import CoachScheduleFactory
 
 
 class TestCoachSchedulesRoutes:
@@ -22,3 +23,16 @@ class TestCoachSchedulesRoutes:
             payload["scheduled_at"]
         ).astimezone(timezone.utc)
         assert query_coach_schedule[0].duration_minutes == payload["duration_minutes"]
+
+    def test_delete_coach_schedules_route(
+        self, swimming_coach_client, coach_schedule_repo
+    ):
+
+        coach = swimming_coach_client.user_type
+        coach_schedule = CoachScheduleFactory(swimming_coach=coach)
+
+        response = swimming_coach_client.delete(
+            f"/coach_schedules/{str(coach_schedule.id)}"
+        )
+
+        assert response.status_code == 204
