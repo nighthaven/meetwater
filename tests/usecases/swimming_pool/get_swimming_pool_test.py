@@ -5,6 +5,7 @@ from src.exceptions.swimming_pool.swimming_pool_not_found_exception import (
 )
 from src.models.enums.coach_activity import CoachActivity
 from src.usecases.swimming_pool.get_swimming_pool import get_swimming_pool_from_slug
+from tests.fixtures.coach_schedule_factory import CoachScheduleFactory
 from tests.fixtures.swimming_coach_factory import SwimmingCoachFactory
 from tests.fixtures.swimming_pool_factory import SwimmingPoolFactory
 
@@ -13,6 +14,7 @@ class TestGetSwimmingPool:
     def test_get_swimming_pool(self, swimming_pool_repo, mock_request_with_subdomain):
         swimming_pool = SwimmingPoolFactory()
         swimming_coach = SwimmingCoachFactory(swimming_pool_id=swimming_pool.id)
+        CoachScheduleFactory(swimming_coach=swimming_coach)
         mock_request = mock_request_with_subdomain(swimming_pool.slug)
 
         response = get_swimming_pool_from_slug(mock_request, swimming_pool_repo)

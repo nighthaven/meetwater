@@ -5,7 +5,6 @@ from datetime import timedelta, date
 from src.models.link.swimmers_coachs import SwimmerCoach
 from src.models.swimming_coach import SwimmingCoach
 from src.services.security import Security
-from tests.fixtures.coach_schedule_factory import CoachScheduleFactory
 from tests.fixtures.swimming_pool_factory import SwimmingPoolFactory
 
 
@@ -45,8 +44,6 @@ class SwimmingCoachFactory(factory.alchemy.SQLAlchemyModelFactory):  # type: ign
         if extracted:
             for schedule in extracted:
                 schedule.swimming_coach = self
-            return
-        CoachScheduleFactory(swimming_coach=self)
 
     @factory.post_generation
     def swimmers(self, create, extracted, **kwargs):

@@ -43,8 +43,13 @@ class TestCreateBooking:
     ):
         swimmer = SwimmerFactory(representatives=[authenticated_representative])
         swimming_coach = SwimmingCoachFactory(swimmers=[swimmer])
-        for schedule in swimming_coach.schedules:
-            schedule.scheduled_at = schedule.scheduled_at.astimezone(timezone.utc)
+        CoachScheduleFactory(
+            swimming_coach=swimming_coach,
+            scheduled_at=DateTimeService.futur_date_and_time(1, 14).astimezone(
+                timezone.utc
+            ),
+            duration_minutes=30,
+        )
         date_appointement = DateTimeService.futur_date_and_time(1, 14)
 
         query = BookingQuery(
@@ -140,8 +145,13 @@ class TestCreateBooking:
     ):
         swimmer = SwimmerFactory(representatives=[authenticated_representative])
         swimming_coach = SwimmingCoachFactory(swimmers=[swimmer])
-        for schedule in swimming_coach.schedules:
-            schedule.scheduled_at = schedule.scheduled_at.astimezone(timezone.utc)
+        CoachScheduleFactory(
+            swimming_coach=swimming_coach,
+            scheduled_at=DateTimeService.futur_date_and_time(1, 14).astimezone(
+                timezone.utc
+            ),
+            duration_minutes=30,
+        )
         date_appointement = DateTimeService.futur_date_and_time(1, 14)
 
         query = BookingQuery(
@@ -173,8 +183,13 @@ class TestCreateBooking:
     ):
         swimmer = SwimmerFactory(representatives=[authenticated_representative])
         swimming_coach = SwimmingCoachFactory()
-        for schedule in swimming_coach.schedules:
-            schedule.scheduled_at = schedule.scheduled_at.astimezone(timezone.utc)
+        CoachScheduleFactory(
+            swimming_coach=swimming_coach,
+            scheduled_at=DateTimeService.futur_date_and_time(1, 14).astimezone(
+                timezone.utc
+            ),
+            duration_minutes=30,
+        )
         date_appointement = DateTimeService.futur_date_and_time(1, 14)
 
         query = BookingQuery(
@@ -205,8 +220,13 @@ class TestCreateBooking:
         authenticated_representative,
     ):
         swimming_coach = SwimmingCoachFactory()
-        for schedule in swimming_coach.schedules:
-            schedule.scheduled_at = schedule.scheduled_at.astimezone(timezone.utc)
+        CoachScheduleFactory(
+            swimming_coach=swimming_coach,
+            scheduled_at=DateTimeService.futur_date_and_time(1, 14).astimezone(
+                timezone.utc
+            ),
+            duration_minutes=30,
+        )
         date_appointement = DateTimeService.futur_date_and_time(1, 14)
 
         query = BookingQuery(
@@ -239,8 +259,13 @@ class TestCreateBooking:
         swimming_coach = SwimmingCoachFactory(
             swimmers=[swimmer_not_owned_by_representative]
         )
-        for schedule in swimming_coach.schedules:
-            schedule.scheduled_at = schedule.scheduled_at.astimezone(timezone.utc)
+        CoachScheduleFactory(
+            swimming_coach=swimming_coach,
+            scheduled_at=DateTimeService.futur_date_and_time(1, 14).astimezone(
+                timezone.utc
+            ),
+            duration_minutes=30,
+        )
         date_appointement = DateTimeService.futur_date_and_time(1, 14)
 
         query = BookingQuery(
@@ -368,8 +393,14 @@ class TestCreateBooking:
             activity=CoachActivity.AQUA_BIKE, scheduled_at=date_appointement
         )
         swimming_coach = SwimmingCoachFactory(swimmers=[swimmer], schedules=[schedule])
-        for schedule in swimming_coach.schedules:
-            schedule.scheduled_at = schedule.scheduled_at.astimezone(timezone.utc)
+        CoachScheduleFactory(
+            activity=CoachActivity.AQUA_BIKE,
+            swimming_coach=swimming_coach,
+            scheduled_at=DateTimeService.futur_date_and_time(1, 14).astimezone(
+                timezone.utc
+            ),
+            duration_minutes=30,
+        )
 
         query = BookingQuery(
             appointment_at=date_appointement,
@@ -395,8 +426,13 @@ class TestCreateBooking:
     ):
         swimmer = SwimmerFactory(representatives=[authenticated_representative])
         swimming_coach = SwimmingCoachFactory(swimmers=[swimmer])
-        for schedule in swimming_coach.schedules:
-            schedule.scheduled_at = schedule.scheduled_at.astimezone(timezone.utc)
+        CoachScheduleFactory(
+            swimming_coach=swimming_coach,
+            scheduled_at=DateTimeService.futur_date_and_time(1, 14).astimezone(
+                timezone.utc
+            ),
+            duration_minutes=30,
+        )
         date_appointement = DateTimeService.futur_date_and_time(1, 14)
         BookingFactory(swimming_coach=swimming_coach, appointment_at=date_appointement)
 
@@ -430,8 +466,13 @@ class TestCreateBooking:
             representatives=[authenticated_representative], level=SwimmerLevel.BEGINNER
         )
         swimming_coach = SwimmingCoachFactory(swimmers=[swimmer_1, swimmer_2])
-        for schedule in swimming_coach.schedules:
-            schedule.scheduled_at = schedule.scheduled_at.astimezone(timezone.utc)
+        CoachScheduleFactory(
+            swimming_coach=swimming_coach,
+            scheduled_at=DateTimeService.futur_date_and_time(1, 14).astimezone(
+                timezone.utc
+            ),
+            duration_minutes=30,
+        )
         date_appointement = DateTimeService.futur_date_and_time(1, 14)
 
         query = BookingQuery(
@@ -467,8 +508,13 @@ class TestCreateBooking:
             birth_date=date(date.today().year - 6, 1, 1),
         )
         swimming_coach = SwimmingCoachFactory(swimmers=[swimmer_adult, swimmer_child])
-        for schedule in swimming_coach.schedules:
-            schedule.scheduled_at = schedule.scheduled_at.astimezone(timezone.utc)
+        CoachScheduleFactory(
+            swimming_coach=swimming_coach,
+            scheduled_at=DateTimeService.futur_date_and_time(1, 14).astimezone(
+                timezone.utc
+            ),
+            duration_minutes=30,
+        )
         date_appointement = DateTimeService.futur_date_and_time(1, 14)
 
         query = BookingQuery(

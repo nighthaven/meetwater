@@ -15,6 +15,7 @@ from src.models.pool_manager import PoolManager
 from src.models.representative import Representative
 from src.models.swimming_coach import SwimmingCoach
 from src.repositories.booking_repository import BookingRepository
+from src.repositories.coach_schedule_repository import CoachScheduleRepository
 from src.repositories.pool_manager_repository import PoolManagerRepository
 from src.repositories.representative_repository import RepresentativeRepository
 from src.repositories.swimmer_repository import SwimmerRepository
@@ -132,6 +133,11 @@ def swimming_coach_repo(db_session):
 @pytest.fixture
 def swimming_pool_repo(db_session):
     return SwimmingPoolRepository(db_session)
+
+
+@pytest.fixture
+def coach_schedule_repo(db_session):
+    return CoachScheduleRepository(db_session)
 
 
 @pytest.fixture

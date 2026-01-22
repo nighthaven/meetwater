@@ -1,6 +1,7 @@
 from datetime import datetime, timezone, timedelta
 
 from src.models.swimming_coach import SwimmingCoach
+from tests.fixtures.coach_schedule_factory import CoachScheduleFactory
 
 
 class TestSwimmingCoachRoutes:
@@ -27,6 +28,7 @@ class TestSwimmingCoachRoutes:
 
     def test_get_swimming_coach_route(self, swimming_coach_client, db_session):
         swimming_coach = swimming_coach_client.user_type
+        CoachScheduleFactory(swimming_coach=swimming_coach)
 
         response = swimming_coach_client.get(
             "/swimming_coaches", params={"swimming_coach_id": str(swimming_coach.id)}

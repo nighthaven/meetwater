@@ -8,6 +8,7 @@ from src.routes.pool_manager_routes import router as pool_manager_router
 from src.routes.swimming_coaches_routes import router as swimming_coach_router
 from src.routes.booking_routes import router as booking_router
 from src.routes.swimming_pool_routes import router as swimming_pool_router
+from src.routes.coach_schedules_routes import router as coach_schedules_router
 
 
 app = FastAPI()
@@ -26,6 +27,7 @@ routers = [
     swimming_coach_router,
     booking_router,
     swimming_pool_router,
+    coach_schedules_router,
 ]
 for router in routers:
     app.include_router(router)
