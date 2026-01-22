@@ -1,7 +1,7 @@
 from src.models.enums.coach_activity import CoachActivity
 from src.routes.dto.coach_schedule.query_coach_schedule import QueryCoachSchedule
 from src.services.date_time_service import DateTimeService
-from src.usecases.coach_schedules.create_coach_schedule import (
+from src.usecases.coach_schedules.create_coach_schedule_usecase import (
     create_coach_schedule_usecase,
 )
 from tests.fixtures.swimming_coach_factory import SwimmingCoachFactory

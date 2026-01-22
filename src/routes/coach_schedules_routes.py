@@ -9,7 +9,7 @@ from src.models.swimming_coach import SwimmingCoach
 from src.repositories.coach_schedule_repository import CoachScheduleRepository
 from src.routes.dto.coach_schedule.query_coach_schedule import QueryCoachSchedule
 from src.services.security import Security
-from src.usecases.coach_schedules.create_coach_schedule import (
+from src.usecases.coach_schedules.create_coach_schedule_usecase import (
     create_coach_schedule_usecase,
 )
 

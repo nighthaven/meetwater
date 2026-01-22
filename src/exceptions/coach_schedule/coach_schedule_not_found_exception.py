@@ -1,0 +1,2 @@
+class CoachScheduleNotFoundException(Exception):
+    pass

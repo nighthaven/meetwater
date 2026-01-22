@@ -1,4 +1,5 @@
-from typing import Annotated
+from uuid import UUID
+from typing import Annotated, Optional, cast
 from fastapi import Depends
 from sqlalchemy.orm import Session
 from src.models import get_db
@@ -22,3 +23,14 @@ class CoachScheduleRepository:
             return self.db.query(CoachSchedule).all()
         except Exception as e:
             raise e
+
+    def find(self, coach_schedule_id: UUID) -> Optional[CoachSchedule]:
+        result = (
+            self.db.query(CoachSchedule).filter_by(id=coach_schedule_id).one_or_none()
+        )
+        return cast(Optional[CoachSchedule], result)
+
+    def delete(self, coach_schedule_id: UUID):
+        self.db.query(CoachSchedule).filter_by(id=coach_schedule_id).delete()
+        self.db.commit()
+        return
