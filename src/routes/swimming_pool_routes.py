@@ -7,7 +7,7 @@ from src.exceptions.representative.representative_not_found_exception import (
 from src.exceptions.swimming_pool.swimming_pool_not_found_exception import (
     SwimmingPoolNotFoundException,
 )
-from src.models.representative import Representative
+from src.models.user import User
 from src.repositories.swimming_pool_repository import SwimmingPoolRepository
 from src.routes.dto.swimming_pool.swimming_pool_response_model import (
     SwimmingPoolResponseModel,
@@ -27,9 +27,7 @@ router = APIRouter(
 def get_swimming_pool(
     request: Request,
     swimming_pool_repository: Annotated[Any, Depends(SwimmingPoolRepository)],
-    current_representative: Representative = Depends(
-        Security.get_current_representative
-    ),
+    current_user: User = Depends(Security.get_current_user),
 ):
     try:
         return get_swimming_pool_from_slug(request, swimming_pool_repository)
