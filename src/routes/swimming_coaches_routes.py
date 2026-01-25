@@ -17,8 +17,8 @@ from src.models.swimming_coach import SwimmingCoach
 from src.repositories.swimming_coaches_repository import SwimmingCoachRepository
 from src.repositories.swimming_pool_repository import SwimmingPoolRepository
 from src.routes.dto.swimming_coach.swimming_coach_query import SwimmingCoachQuery
-from src.routes.dto.swimming_coach.swimming_coach_with_schedule_response_model import (
-    SwimmingCoachWithScheduleResponseModel,
+from src.routes.dto.swimming_coach.swimming_coach_with_swimmers_and_schedule_response_model import (
+    SwimmingCoachWithSwimmerAndScheduleResponseModel,
 )
 from src.services.security import Security
 from src.usecases.swimming_coach.create_swimming_coach import (
@@ -59,7 +59,7 @@ def create_swimming_coach(
 @router.get(
     "/",
     status_code=status.HTTP_200_OK,
-    response_model=SwimmingCoachWithScheduleResponseModel,
+    response_model=SwimmingCoachWithSwimmerAndScheduleResponseModel,
 )
 def get_swimming_coaches(
     swimming_coach_id: UUID,

@@ -37,6 +37,9 @@ class TestSwimmingCoachRoutes:
         assert response.json()["id"] == str(swimming_coach.id)
         assert response.json()["first_name"] == swimming_coach.first_name
         assert response.json()["last_name"] == swimming_coach.last_name
+        assert response.json()["schedules"][0]["id"] == str(
+            swimming_coach.schedules[0].id
+        )
         assert (
             response.json()["schedules"][0]["activity"]
             == swimming_coach.schedules[0].activity.value
@@ -47,4 +50,23 @@ class TestSwimmingCoachRoutes:
         assert (
             response.json()["schedules"][0]["duration_minutes"]
             == swimming_coach.schedules[0].duration_minutes
+        )
+        assert response.json()["students"][0]["id"] == str(
+            swimming_coach.students[0].id
+        )
+        assert (
+            response.json()["students"][0]["first_name"]
+            == swimming_coach.students[0].first_name
+        )
+        assert (
+            response.json()["students"][0]["last_name"]
+            == swimming_coach.students[0].last_name
+        )
+        assert (
+            response.json()["students"][0]["birth_date"]
+            == swimming_coach.students[0].birth_date.isoformat()
+        )
+        assert (
+            response.json()["students"][0]["level"]
+            == swimming_coach.students[0].level.value
         )

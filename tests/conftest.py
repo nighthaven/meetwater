@@ -259,7 +259,7 @@ def representative_client(db_session, make_authenticated_client):
 
 @pytest.fixture
 def swimming_coach_client(db_session, make_authenticated_client):
-    swimming_coach = SwimmingCoachFactory()
+    swimming_coach = SwimmingCoachFactory(swimmers=[SwimmerFactory()])
     swimming_pool = SwimmingPoolFactory(pool_name="swimming pool for domain")
     db_session.commit()
     return make_authenticated_client(swimming_coach, swimming_pool)
