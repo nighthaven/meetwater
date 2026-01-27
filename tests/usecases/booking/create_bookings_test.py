@@ -29,10 +29,59 @@ from src.usecases.booking.create_bookings import create_bookings_usecase
 from tests.fixtures.booking_factory import BookingFactory
 from tests.fixtures.coach_schedule_factory import CoachScheduleFactory
 from tests.fixtures.swimmer_factory import SwimmerFactory
-from tests.fixtures.swimming_coach_factory import SwimmingCoachFactory
+from tests.fixtures.swimming_coach_factory import (
+    SwimmingCoachFactory,
+    SwimmerCoachFactory,
+)
+from tests.fixtures.user_factory import UserFactory
 
 
-class TestCreateBooking:
+class TestCreateBookingSwimmingCoach:
+    def test_create_booking(
+        self,
+        db_session,
+        swimmer_repo,
+        booking_repo,
+        swimming_coach_repo,
+        authenticated_swimming_coach,
+    ):
+        user = UserFactory()
+        authenticated_swimming_coach.user_id = user.id
+        swimmer = SwimmerFactory()
+        SwimmerCoachFactory(
+            swimmer=swimmer, swimming_coach=authenticated_swimming_coach
+        )
+        CoachScheduleFactory(
+            swimming_coach=authenticated_swimming_coach,
+            scheduled_at=DateTimeService.futur_date_and_time(1, 14).astimezone(
+                timezone.utc
+            ),
+            duration_minutes=30,
+        )
+        date_appointement = DateTimeService.futur_date_and_time(1, 14)
+
+        query = BookingQuery(
+            appointment_at=date_appointement,
+            swimmers_ids=[swimmer.id],
+            swimming_coach_id=authenticated_swimming_coach.id,
+        )
+
+        create_bookings_usecase(
+            query,
+            swimmer_repo,
+            booking_repo,
+            swimming_coach_repo,
+            user,
+        )
+
+        query_booking = db_session.query(Booking).all()
+        assert len(query_booking) == 1
+        assert query_booking[0].appointment_at == date_appointement
+        assert query_booking[0].swimmers[0].swimmer.id == swimmer.id
+        assert query_booking[0].swimming_coach_id == authenticated_swimming_coach.id
+
+
+class TestCreateBookinRepresentative:
     def test_create_booking_with_selected_coach_assignated(
         self,
         db_session,
@@ -41,6 +90,8 @@ class TestCreateBooking:
         swimming_coach_repo,
         authenticated_representative,
     ):
+        user = UserFactory()
+        authenticated_representative.user_id = user.id
         swimmer = SwimmerFactory(representatives=[authenticated_representative])
         swimming_coach = SwimmingCoachFactory(swimmers=[swimmer])
         CoachScheduleFactory(
@@ -63,7 +114,7 @@ class TestCreateBooking:
             swimmer_repo,
             booking_repo,
             swimming_coach_repo,
-            authenticated_representative,
+            user,
         )
 
         query_booking = db_session.query(Booking).all()
@@ -80,6 +131,8 @@ class TestCreateBooking:
         swimming_coach_repo,
         authenticated_representative,
     ):
+        user = UserFactory()
+        authenticated_representative.user_id = user.id
         swimmer = SwimmerFactory(representatives=[authenticated_representative])
         date_appointement = DateTimeService.futur_date_and_time(1, 14)
         swimming_coach = SwimmingCoachFactory(swimmers=[swimmer])
@@ -102,7 +155,7 @@ class TestCreateBooking:
                 swimmer_repo,
                 booking_repo,
                 swimming_coach_repo,
-                authenticated_representative,
+                user,
             )
 
     def test_create_booking_with_selected_coach_assignated_but_date_doesn_t_match(
@@ -113,6 +166,8 @@ class TestCreateBooking:
         swimming_coach_repo,
         authenticated_representative,
     ):
+        user = UserFactory()
+        authenticated_representative.user_id = user.id
         swimmer = SwimmerFactory(representatives=[authenticated_representative])
         date_appointement = DateTimeService.futur_date_and_time(1, 14)
         schedule = CoachScheduleFactory.build(scheduled_at=date_appointement)
@@ -132,7 +187,7 @@ class TestCreateBooking:
                 swimmer_repo,
                 booking_repo,
                 swimming_coach_repo,
-                authenticated_representative,
+                user,
             )
 
     def test_create_booking_with_coach_assignated(
@@ -143,6 +198,8 @@ class TestCreateBooking:
         swimming_coach_repo,
         authenticated_representative,
     ):
+        user = UserFactory()
+        authenticated_representative.user_id = user.id
         swimmer = SwimmerFactory(representatives=[authenticated_representative])
         swimming_coach = SwimmingCoachFactory(swimmers=[swimmer])
         CoachScheduleFactory(
@@ -164,7 +221,7 @@ class TestCreateBooking:
             swimmer_repo,
             booking_repo,
             swimming_coach_repo,
-            authenticated_representative,
+            user,
         )
 
         query_booking = db_session.query(Booking).all()
@@ -181,6 +238,8 @@ class TestCreateBooking:
         swimming_coach_repo,
         authenticated_representative,
     ):
+        user = UserFactory()
+        authenticated_representative.user_id = user.id
         swimmer = SwimmerFactory(representatives=[authenticated_representative])
         swimming_coach = SwimmingCoachFactory()
         CoachScheduleFactory(
@@ -202,7 +261,7 @@ class TestCreateBooking:
             swimmer_repo,
             booking_repo,
             swimming_coach_repo,
-            authenticated_representative,
+            user,
         )
 
         query_booking = db_session.query(Booking).all()
@@ -219,6 +278,8 @@ class TestCreateBooking:
         swimming_coach_repo,
         authenticated_representative,
     ):
+        user = UserFactory()
+        authenticated_representative.user_id = user.id
         swimming_coach = SwimmingCoachFactory()
         CoachScheduleFactory(
             swimming_coach=swimming_coach,
@@ -243,7 +304,7 @@ class TestCreateBooking:
                 swimmer_repo,
                 booking_repo,
                 swimming_coach_repo,
-                authenticated_representative,
+                user,
             )
 
     def test_create_booking_swimmer_not_assigned_to_representative(
@@ -254,6 +315,8 @@ class TestCreateBooking:
         swimming_coach_repo,
         authenticated_representative,
     ):
+        user = UserFactory()
+        authenticated_representative.user_id = user.id
         SwimmerFactory(representatives=[authenticated_representative])
         swimmer_not_owned_by_representative = SwimmerFactory()
         swimming_coach = SwimmingCoachFactory(
@@ -282,7 +345,7 @@ class TestCreateBooking:
                 swimmer_repo,
                 booking_repo,
                 swimming_coach_repo,
-                authenticated_representative,
+                user,
             )
 
     def test_create_booking_with_swimming_coach_who_already_have_booking_at_this_datetime(
@@ -293,6 +356,8 @@ class TestCreateBooking:
         swimming_coach_repo,
         authenticated_representative,
     ):
+        user = UserFactory()
+        authenticated_representative.user_id = user.id
         swimmer = SwimmerFactory(representatives=[authenticated_representative])
         date_appointement = DateTimeService.futur_date_and_time(1, 14)
         BookingFactory(swimmers=[swimmer], appointment_at=date_appointement)
@@ -315,7 +380,7 @@ class TestCreateBooking:
                 swimmer_repo,
                 booking_repo,
                 swimming_coach_repo,
-                authenticated_representative,
+                user,
             )
 
     def test_create_booking_no_coach_assignated_and_no_coach_available(
@@ -326,6 +391,8 @@ class TestCreateBooking:
         swimming_coach_repo,
         authenticated_representative,
     ):
+        user = UserFactory()
+        authenticated_representative.user_id = user.id
         swimmer = SwimmerFactory(representatives=[authenticated_representative])
         date_appointement = DateTimeService.futur_date_and_time(1, 14)
         schedule = CoachScheduleFactory.build(
@@ -346,7 +413,7 @@ class TestCreateBooking:
                 swimmer_repo,
                 booking_repo,
                 swimming_coach_repo,
-                authenticated_representative,
+                user,
             )
 
     def test_create_booking_no_coach_assignated_and_coach_available_because_of_booking(
@@ -357,6 +424,8 @@ class TestCreateBooking:
         swimming_coach_repo,
         authenticated_representative,
     ):
+        user = UserFactory()
+        authenticated_representative.user_id = user.id
         swimmer = SwimmerFactory(representatives=[authenticated_representative])
         date_appointement = DateTimeService.futur_date_and_time(1, 14)
         schedule = CoachScheduleFactory.build(scheduled_at=date_appointement)
@@ -376,7 +445,7 @@ class TestCreateBooking:
                 swimmer_repo,
                 booking_repo,
                 swimming_coach_repo,
-                authenticated_representative,
+                user,
             )
 
     def test_create_booking_with_coach_assignated_no_coach_available(
@@ -387,6 +456,8 @@ class TestCreateBooking:
         swimming_coach_repo,
         authenticated_representative,
     ):
+        user = UserFactory()
+        authenticated_representative.user_id = user.id
         swimmer = SwimmerFactory(representatives=[authenticated_representative])
         date_appointement = DateTimeService.futur_date_and_time(1, 14)
         schedule = CoachScheduleFactory.build(
@@ -413,7 +484,7 @@ class TestCreateBooking:
                 swimmer_repo,
                 booking_repo,
                 swimming_coach_repo,
-                authenticated_representative,
+                user,
             )
 
     def test_create_booking_with_coach_assignated_no_coach_available_because_of_booking(
@@ -424,6 +495,8 @@ class TestCreateBooking:
         swimming_coach_repo,
         authenticated_representative,
     ):
+        user = UserFactory()
+        authenticated_representative.user_id = user.id
         swimmer = SwimmerFactory(representatives=[authenticated_representative])
         swimming_coach = SwimmingCoachFactory(swimmers=[swimmer])
         CoachScheduleFactory(
@@ -447,7 +520,7 @@ class TestCreateBooking:
                 swimmer_repo,
                 booking_repo,
                 swimming_coach_repo,
-                authenticated_representative,
+                user,
             )
 
     def test_create_booking_with_multiple_swimmers_not_same_level(
@@ -458,6 +531,8 @@ class TestCreateBooking:
         swimming_coach_repo,
         authenticated_representative,
     ):
+        user = UserFactory()
+        authenticated_representative.user_id = user.id
         swimmer_1 = SwimmerFactory(
             representatives=[authenticated_representative],
             level=SwimmerLevel.INTERMEDIATE,
@@ -488,7 +563,7 @@ class TestCreateBooking:
                 swimmer_repo,
                 booking_repo,
                 swimming_coach_repo,
-                authenticated_representative,
+                user,
             )
 
     def test_create_booking_with_multiple_swimmers_not_same_age_categories(
@@ -499,6 +574,8 @@ class TestCreateBooking:
         swimming_coach_repo,
         authenticated_representative,
     ):
+        user = UserFactory()
+        authenticated_representative.user_id = user.id
         swimmer_adult = SwimmerFactory(
             representatives=[authenticated_representative],
             birth_date=date(date.today().year - 20, 1, 1),
@@ -530,5 +607,5 @@ class TestCreateBooking:
                 swimmer_repo,
                 booking_repo,
                 swimming_coach_repo,
-                authenticated_representative,
+                user,
             )

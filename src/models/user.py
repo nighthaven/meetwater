@@ -1,5 +1,7 @@
+from __future__ import annotations
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     TIMESTAMP,
@@ -7,9 +9,15 @@ from sqlalchemy import (
     func,
 )
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column  # type: ignore[attr-defined]
+from sqlalchemy.orm import Mapped, mapped_column, relationship  # type: ignore[attr-defined]
 
 from src.models import Base
+
+if TYPE_CHECKING:
+    from src.models.representative import Representative
+    from src.models.swimming_coach import SwimmingCoach
+    from src.models.pool_manager import PoolManager
+    from src.models.admin import Admin
 
 
 class User(Base):
@@ -29,4 +37,28 @@ class User(Base):
         TIMESTAMP(),
         server_default=func.now(),
         nullable=False,
+    )
+
+    representative: Mapped[Representative | None] = relationship(  # type: ignore[name-defined]
+        "Representative",
+        back_populates="user",
+        uselist=False,
+    )
+
+    swimming_coach: Mapped[SwimmingCoach | None] = relationship(  # type: ignore[name-defined]
+        "SwimmingCoach",
+        back_populates="user",
+        uselist=False,
+    )
+
+    pool_manager: Mapped[PoolManager | None] = relationship(  # type: ignore[name-defined]
+        "PoolManager",
+        back_populates="user",
+        uselist=False,
+    )
+
+    admin: Mapped[Admin | None] = relationship(  # type: ignore[name-defined]
+        "Admin",
+        back_populates="user",
+        uselist=False,
     )

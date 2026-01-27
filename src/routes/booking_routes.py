@@ -21,6 +21,7 @@ from src.exceptions.swimming_coach.swimming_coach_not_found_exception import (
     SwimmingCoachNotFoundException,
 )
 from src.models.representative import Representative
+from src.models.user import User
 from src.repositories.booking_repository import BookingRepository
 from src.repositories.swimmer_repository import SwimmerRepository
 from src.repositories.swimming_coaches_repository import SwimmingCoachRepository
@@ -44,9 +45,7 @@ def create_booking(
     swimmer_repository: Annotated[Any, Depends(SwimmerRepository)],
     booking_repository: Annotated[Any, Depends(BookingRepository)],
     swimming_coach_repository: Annotated[Any, Depends(SwimmingCoachRepository)],
-    current_representative: Representative = Depends(
-        Security.get_current_representative
-    ),
+    current_user: User = Depends(Security.get_current_user),
 ):
     try:
         create_bookings_usecase(
@@ -54,7 +53,7 @@ def create_booking(
             swimmer_repository,
             booking_repository,
             swimming_coach_repository,
-            current_representative,
+            current_user,
         )
     except RepresentativeNotFoundException:
         raise HTTPException(
