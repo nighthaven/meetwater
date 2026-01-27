@@ -11,10 +11,3 @@ PLANNING_MAPPING = {
     (False, SwimmerLevel.INTERMEDIATE): CoachActivity.CHILD_INTERMEDIATE,
     (False, SwimmerLevel.CONFIRMED): CoachActivity.CHILD_CONFIRMED,
 }
-
-
-def get_coach_activity(is_adult: bool, level: SwimmerLevel) -> CoachActivity:
-    try:
-        return PLANNING_MAPPING[(is_adult, level)]
-    except KeyError:
-        raise ValueError(f"No coach planning defined for {is_adult=} {level=}")

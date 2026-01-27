@@ -1,6 +1,6 @@
 import uuid
 from typing import TYPE_CHECKING, List
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from sqlalchemy import (
@@ -106,3 +106,9 @@ class Swimmer(Base):
     @property
     def full_name(self) -> str:
         return f"{self.first_name} {self.last_name}".strip()
+
+    @property
+    def is_adult(self) -> bool:
+        today = date.today()
+        eighteen_years_ago = today - timedelta(days=365 * 18)
+        return self.birth_date <= eighteen_years_ago
