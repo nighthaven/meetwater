@@ -81,7 +81,10 @@ class TestDeleteBookingRoute:
         representative_client,
         db_session,
     ):
-        booking = BookingFactory()
+        booking = BookingFactory(
+            swimmers=[SwimmerFactory()],
+            appointment_at=datetime.now(timezone.utc) + timedelta(days=2),
+        )
 
         response = representative_client.delete(f"/bookings/{booking.id}")
 

@@ -19,22 +19,34 @@ class BookingsSeeds:
         for representative in representatives:
             for swimmer in representative.students:
                 if swimmer.coaches:
-                    booking = Booking(  # type: ignore[call-arg]
+                    booking_1 = Booking(  # type: ignore[call-arg]
                         appointment_at=DateTimeService.futur_date_and_time(
                             1, 13 + add_one_hour
                         ),
                         duration_minutes=30,
                         swimming_coach_id=swimmer.coaches[0].id,
                     )
-                    self.db.add(booking)
+                    booking_2 = Booking(  # type: ignore[call-arg]
+                        appointment_at=DateTimeService.futur_date_and_time(
+                            2, 13 + add_one_hour
+                        ),
+                        duration_minutes=30,
+                        swimming_coach_id=swimmer.coaches[0].id,
+                    )
+                    self.db.add_all([booking_1, booking_2])
                     self.db.flush()
 
-                    swimmer_booking = SwimmerBooking(  # type: ignore[call-arg]
+                    swimmer_booking_1 = SwimmerBooking(  # type: ignore[call-arg]
                         swimmer_id=swimmer.id,
-                        booking_id=booking.id,
+                        booking_id=booking_1.id,
                     )
-                    list_created_bookings.append(booking)
-                    self.db.add(swimmer_booking)
+                    swimmer_booking_2 = SwimmerBooking(  # type: ignore[call-arg]
+                        swimmer_id=swimmer.id,
+                        booking_id=booking_2.id,
+                    )
+                    list_created_bookings.append(booking_1)
+                    list_created_bookings.append(booking_2)
+                    self.db.add_all([swimmer_booking_1, swimmer_booking_2])
                     self.db.flush()
 
                     add_one_hour = add_one_hour + 1

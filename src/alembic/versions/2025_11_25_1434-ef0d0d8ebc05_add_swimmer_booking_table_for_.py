@@ -30,10 +30,12 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(
             ["booking_id"],
             ["bookings.id"],
+            ondelete="CASCADE",
         ),
         sa.ForeignKeyConstraint(
             ["swimmer_id"],
             ["swimmers.id"],
+            ondelete="CASCADE",
         ),
         sa.PrimaryKeyConstraint("swimmer_id", "booking_id"),
     )

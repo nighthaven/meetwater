@@ -48,4 +48,10 @@ class BookingRepository:
         return bookings
 
     def delete(self, booking_id: UUID):
-        return self.db.query(Booking).filter_by(id=booking_id).delete()
+        try:
+            result = self.db.query(Booking).filter_by(id=booking_id).delete()
+            self.db.commit()
+            return result
+        except Exception as e:
+            self.db.rollback()
+            raise e

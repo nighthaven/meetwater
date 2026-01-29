@@ -8,12 +8,15 @@ from src.exceptions.booking.booking_cancellation_minimum_exception import (
 from src.exceptions.booking.booking_not_found_exception import BookingNotFoundException
 from src.usecases.booking.delete_booking_usecase import delete_booking_usecase
 from tests.fixtures.booking_factory import BookingFactory
+from tests.fixtures.swimmer_factory import SwimmerFactory
 
 
 class TestDeleteBookingByCoach:
     def test_delete_booking(self, booking_repo, authenticated_swimming_coach):
+        swimmer = SwimmerFactory()
         booking = BookingFactory(
-            appointment_at=datetime.now(timezone.utc) + timedelta(hours=2)
+            swimmers=[swimmer],
+            appointment_at=datetime.now(timezone.utc) + timedelta(hours=2),
         )
         user = authenticated_swimming_coach.user
 
@@ -25,8 +28,10 @@ class TestDeleteBookingByCoach:
 
 class TestDeleteBookingByRepresentative:
     def test_delete_booking(self, booking_repo, authenticated_representative):
+        swimmer = SwimmerFactory()
         booking = BookingFactory(
-            appointment_at=datetime.now(timezone.utc) + timedelta(days=2)
+            swimmers=[swimmer],
+            appointment_at=datetime.now(timezone.utc) + timedelta(days=2),
         )
         user = authenticated_representative.user
 
@@ -46,8 +51,10 @@ class TestDeleteBookingByRepresentative:
     def test_delete_booking_less_one_day(
         self, booking_repo, authenticated_representative
     ):
+        swimmer = SwimmerFactory()
         booking = BookingFactory(
-            appointment_at=datetime.now(timezone.utc) + timedelta(hours=7)
+            swimmers=[swimmer],
+            appointment_at=datetime.now(timezone.utc) + timedelta(hours=7),
         )
         user = authenticated_representative.user
 

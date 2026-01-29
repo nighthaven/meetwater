@@ -20,10 +20,10 @@ class SwimmerBooking(Base):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     swimmer_id: Mapped[uuid.UUID] = mapped_column(
-        UUID, ForeignKey("swimmers.id"), primary_key=True
+        UUID, ForeignKey("swimmers.id", ondelete="CASCADE"), primary_key=True
     )
     booking_id: Mapped[uuid.UUID] = mapped_column(
-        UUID, ForeignKey("bookings.id"), primary_key=True
+        UUID, ForeignKey("bookings.id", ondelete="CASCADE"), primary_key=True
     )
 
     swimmer: Mapped["Swimmer"] = relationship("Swimmer", back_populates="bookings")

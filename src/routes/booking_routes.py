@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from typing import Annotated, Any, List
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 
@@ -135,7 +136,7 @@ def get_bookings(
 
 @router.delete("/{booking_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_booking(
-    booking_id,
+    booking_id: UUID,
     booking_repository: Annotated[Any, Depends(BookingRepository)],
     current_user: User = Depends(Security.get_current_user),
 ):
