@@ -6,6 +6,10 @@ from fastapi import APIRouter, Depends, status
 from src.exceptions.booking.booking_already_taken_for_swimmer_exception import (
     BookingAlreadyTakenForSwimmerException,
 )
+from src.exceptions.booking.booking_cancellation_minimum_exception import (
+    BookingCancellationMinimumException,
+)
+from src.exceptions.booking.booking_not_found_exception import BookingNotFoundException
 from src.exceptions.representative.representative_not_found_exception import (
     RepresentativeNotFoundException,
 )
@@ -29,6 +33,7 @@ from src.routes.dto.booking.booking_response_model import BookingResponseModel
 from src.routes.dto.booking.booking_query import BookingQuery
 from src.services.security import Security
 from src.usecases.booking.create_bookings import create_bookings_usecase
+from src.usecases.booking.delete_booking_usecase import delete_booking_usecase
 from src.usecases.booking.get_bookings_by_representative_swimmers import (
     get_bookings_by_representative_swimmers,
 )
@@ -125,4 +130,23 @@ def get_bookings(
     except RepresentativeNotFoundException:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="User is not representative"
+        )
+
+
+@router.delete("/{booking_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_booking(
+    booking_id,
+    booking_repository: Annotated[Any, Depends(BookingRepository)],
+    current_user: User = Depends(Security.get_current_user),
+):
+    try:
+        delete_booking_usecase(booking_id, booking_repository, current_user)
+    except BookingNotFoundException:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found"
+        )
+    except BookingCancellationMinimumException:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Booking can't be cancelled if less than 24h",
         )

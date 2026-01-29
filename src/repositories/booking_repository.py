@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated, List, Optional
 from uuid import UUID
 
 from fastapi import Depends
@@ -28,6 +28,9 @@ class BookingRepository:
             self.db.close()
             raise e
 
+    def find(self, booking_id: UUID) -> Optional[Booking]:
+        return self.db.query(Booking).filter_by(id=booking_id).one_or_none()
+
     def get_bookings_by_swimmers(self, swimmers_ids: List[UUID]) -> List[Booking]:
         subq = (
             self.db.query(SwimmerBooking.booking_id)
@@ -43,3 +46,6 @@ class BookingRepository:
             .all()
         )
         return bookings
+
+    def delete(self, booking_id: UUID):
+        return self.db.query(Booking).filter_by(id=booking_id).delete()

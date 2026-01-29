@@ -1,0 +1,2 @@
+class BookingCancellationMinimumException(Exception):
+    pass

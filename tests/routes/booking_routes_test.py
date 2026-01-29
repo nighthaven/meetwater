@@ -73,3 +73,16 @@ class TestGetBookingRoute:
             response.json()[1]["swimming_coach_name"]
             == booking_2.swimming_coach.full_name
         )
+
+
+class TestDeleteBookingRoute:
+    def test_delete_booking_route(
+        self,
+        representative_client,
+        db_session,
+    ):
+        booking = BookingFactory()
+
+        response = representative_client.delete(f"/bookings/{booking.id}")
+
+        assert response.status_code == 204
