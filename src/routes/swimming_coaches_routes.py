@@ -111,8 +111,8 @@ def get_swimming_coach(
                     status=booking.status,
                     swimming_coach_name=booking.swimming_coach.full_name,
                     swimmers=[
-                        SwimmerResponseModel.model_validate(swimmer)
-                        for swimmer in booking.swimmers
+                        SwimmerResponseModel.model_validate(sb.swimmer)
+                        for sb in booking.swimmers
                     ],
                 )
                 for booking in coach.bookings
