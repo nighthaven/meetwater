@@ -32,6 +32,9 @@ class SwimmingCoachRepository:
                 self.db.query(SwimmingCoach)
                 .options(joinedload(SwimmingCoach.schedules))
                 .options(joinedload(SwimmingCoach.students))
+                .options(
+                    joinedload(SwimmingCoach.bookings).joinedload(Booking.swimmers)
+                )
                 .filter_by(id=swimming_coach_id)
                 .one_or_none()
             )

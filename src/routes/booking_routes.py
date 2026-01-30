@@ -30,7 +30,9 @@ from src.models.user import User
 from src.repositories.booking_repository import BookingRepository
 from src.repositories.swimmer_repository import SwimmerRepository
 from src.repositories.swimming_coaches_repository import SwimmingCoachRepository
-from src.routes.dto.booking.booking_response_model import BookingResponseModel
+from src.routes.dto.booking.booking_with_swimmer_response_model import (
+    BookingWithSwimmersResponseModel,
+)
 from src.routes.dto.booking.booking_query import BookingQuery
 from src.services.security import Security
 from src.usecases.booking.create_bookings import create_bookings_usecase
@@ -95,7 +97,9 @@ def create_booking(
 
 
 @router.get(
-    "/", status_code=status.HTTP_200_OK, response_model=List[BookingResponseModel]
+    "/",
+    status_code=status.HTTP_200_OK,
+    response_model=List[BookingWithSwimmersResponseModel],
 )
 def get_bookings(
     booking_repository: Annotated[Any, Depends(BookingRepository)],
@@ -113,7 +117,7 @@ def get_bookings(
                 swimmers_bookings.swimmer for swimmers_bookings in booking.swimmers
             ]
             serialized.append(
-                BookingResponseModel.model_validate(
+                BookingWithSwimmersResponseModel.model_validate(
                     {
                         "id": booking.id,
                         **booking.__dict__,

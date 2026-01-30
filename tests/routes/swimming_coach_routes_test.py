@@ -1,6 +1,7 @@
 from datetime import datetime, timezone, timedelta
 
 from src.models.swimming_coach import SwimmingCoach
+from tests.fixtures.booking_factory import BookingFactory
 from tests.fixtures.coach_schedule_factory import CoachScheduleFactory
 
 
@@ -29,6 +30,7 @@ class TestSwimmingCoachRoutes:
     def test_get_swimming_coach_route(self, swimming_coach_client, db_session):
         swimming_coach = swimming_coach_client.user_type
         CoachScheduleFactory(swimming_coach=swimming_coach)
+        booking = BookingFactory(swimming_coach=swimming_coach)
 
         response = swimming_coach_client.get(
             "/swimming_coaches", params={"swimming_coach_id": str(swimming_coach.id)}
@@ -69,4 +71,17 @@ class TestSwimmingCoachRoutes:
         assert (
             response.json()["students"][0]["level"]
             == swimming_coach.students[0].level.value
+        )
+        assert response.json()["bookings"][0]["id"] == str(booking.id)
+        assert (
+            response.json()["bookings"][0]["appointment_at"]
+            == booking.appointment_at.isoformat()
+        )
+        assert (
+            response.json()["bookings"][0]["duration_minutes"]
+            == booking.duration_minutes
+        )
+        assert (
+            response.json()["bookings"][0]["swimming_coach_name"]
+            == booking.swimming_coach.full_name
         )

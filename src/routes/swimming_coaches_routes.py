@@ -16,9 +16,16 @@ from src.models.pool_manager import PoolManager
 from src.models.swimming_coach import SwimmingCoach
 from src.repositories.swimming_coaches_repository import SwimmingCoachRepository
 from src.repositories.swimming_pool_repository import SwimmingPoolRepository
+from src.routes.dto.booking.booking_with_swimmer_response_model import (
+    BookingWithSwimmersResponseModel,
+)
+from src.routes.dto.swimmer.swimmer_response_model import SwimmerResponseModel
+from src.routes.dto.swimming_coach.coach_schedule_response_model import (
+    CoachScheduleResponseModel,
+)
 from src.routes.dto.swimming_coach.swimming_coach_query import SwimmingCoachQuery
 from src.routes.dto.swimming_coach.swimming_coach_with_swimmers_and_schedule_response_model import (
-    SwimmingCoachWithSwimmerAndScheduleResponseModel,
+    SwimmingCoachWithBookingsAndSwimmersAndSchedulesResponseModel,
 )
 from src.services.security import Security
 from src.usecases.swimming_coach.create_swimming_coach import (
@@ -59,9 +66,9 @@ def create_swimming_coach(
 @router.get(
     "/",
     status_code=status.HTTP_200_OK,
-    response_model=SwimmingCoachWithSwimmerAndScheduleResponseModel,
+    response_model=SwimmingCoachWithBookingsAndSwimmersAndSchedulesResponseModel,
 )
-def get_swimming_coaches(
+def get_swimming_coach(
     swimming_coach_id: UUID,
     swimming_coach_repository: Annotated[Any, Depends(SwimmingCoachRepository)],
     current_swimming_coach: SwimmingCoach = Depends(
@@ -69,9 +76,49 @@ def get_swimming_coaches(
     ),
 ):
     try:
-        return get_swimming_coach_by_id(
+        coach = get_swimming_coach_by_id(
             swimming_coach_id, swimming_coach_repository, current_swimming_coach
         )
+        return SwimmingCoachWithBookingsAndSwimmersAndSchedulesResponseModel(
+            id=coach.id,
+            first_name=coach.first_name,
+            last_name=coach.last_name,
+            schedules=[
+                CoachScheduleResponseModel(
+                    id=schedule.id,
+                    activity=schedule.activity,
+                    scheduled_at=schedule.scheduled_at,
+                    duration_minutes=schedule.duration_minutes,
+                )
+                for schedule in coach.schedules
+            ],
+            students=[
+                SwimmerResponseModel(
+                    id=swimmer.id,
+                    first_name=swimmer.first_name,
+                    last_name=swimmer.last_name,
+                    birth_date=swimmer.birth_date,
+                    level=swimmer.level,
+                )
+                for swimmer in coach.students
+            ],
+            bookings=[
+                BookingWithSwimmersResponseModel(
+                    id=booking.id,
+                    appointment_at=booking.appointment_at,
+                    created_at=booking.created_at,
+                    duration_minutes=booking.duration_minutes,
+                    status=booking.status,
+                    swimming_coach_name=booking.swimming_coach.full_name,
+                    swimmers=[
+                        SwimmerResponseModel.model_validate(swimmer)
+                        for swimmer in booking.swimmers
+                    ],
+                )
+                for booking in coach.bookings
+            ],
+        )
+
     except SwimmingCoachNotFoundException:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Swimming coach not found"
