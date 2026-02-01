@@ -50,6 +50,8 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id"),
     )
+    op.drop_index(op.f("idx_swimming_pool_slug"), table_name="swimming_pools")
+    op.drop_index(op.f("ix_swimming_pools_slug"), table_name="swimming_pools")
     op.create_unique_constraint("ck_opening_closing_times", "swimming_pools", ["slug"])
     # ### end Alembic commands ###
 
@@ -62,6 +64,12 @@ def downgrade() -> None:
         ALTER TABLE swimming_pools
         DROP CONSTRAINT IF EXISTS ck_opening_closing_times
         """
+    )
+    op.create_index(
+        op.f("ix_swimming_pools_slug"), "swimming_pools", ["slug"], unique=True
+    )
+    op.create_index(
+        op.f("idx_swimming_pool_slug"), "swimming_pools", ["slug"], unique=False
     )
     op.drop_table("swimming_pool_schedules")
     op.execute("DROP TYPE IF EXISTS dayofweek")

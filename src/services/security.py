@@ -1,3 +1,5 @@
+import secrets
+import hashlib
 from datetime import datetime, timedelta
 from typing import Any, Dict, cast
 from sqlalchemy.orm import Session
@@ -45,6 +47,12 @@ class Security:
     @staticmethod
     def verify_password(plain_password: str, hashed_password: str | None) -> bool:
         return cast(bool, pwd_context.verify(plain_password, hashed_password))
+
+    @staticmethod
+    def generate_reset_token() -> tuple[str, str]:
+        raw_token = secrets.token_urlsafe(32)
+        hashed_token = hashlib.sha256(raw_token.encode()).hexdigest()
+        return raw_token, hashed_token
 
     @staticmethod
     def create_access_token(data: Dict[str, Any]):

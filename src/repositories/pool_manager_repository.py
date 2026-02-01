@@ -27,3 +27,10 @@ class PoolManagerRepository:
             self.db.rollback()
             self.db.close()
             raise e
+
+    def find_by_user_id(self, user_id: int) -> PoolManager | None:
+        return (
+            self.db.query(PoolManager)
+            .filter(PoolManager.user_id == user_id)
+            .one_or_none()
+        )

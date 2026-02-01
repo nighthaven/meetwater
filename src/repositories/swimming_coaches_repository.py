@@ -43,6 +43,9 @@ class SwimmingCoachRepository:
             self.db.close()
             raise e
 
+    def find_by_user_id(self, user_id: UUID) -> SwimmingCoach | None:
+        return self.db.query(SwimmingCoach).filter_by(user_id=user_id).one_or_none()
+
     def get_all_available_coach(
         self, appointment_at: datetime, duration: int, coach_planning: CoachActivity
     ) -> list[SwimmingCoach]:
