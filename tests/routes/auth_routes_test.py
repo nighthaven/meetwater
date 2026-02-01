@@ -15,7 +15,7 @@ class TestLoginUser:
         user = UserFactory(email="test@example.com")
 
         response = client.post(
-            "/login",
+            "/auth/login",
             data={"username": user.email, "password": "pass"},
             headers={"subdomain": swimming_pool.slug},
         )
@@ -40,7 +40,7 @@ class TestLoginUser:
     def test_incorrect_login(self, client, email, password, status_code):
         swimming_pool = SwimmingPoolFactory(pool_name="test pool")
         response = client.post(
-            "/login",
+            "/auth/login",
             data={"username": email, "password": password},
             headers={"subdomain": swimming_pool.slug},
         )

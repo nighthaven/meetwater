@@ -16,6 +16,11 @@ class Settings(BaseSettings):  # type: ignore
     secret_key: str
     algorythm: str
     access_token_expire_minutes: str
+    from_email: str
+    smtp_host: str
+    smtp_port: str
+    smtp_user: str
+    smtp_password: str
 
     model_config = SettingsConfigDict(env_file=env_path, env_file_encoding="utf-8")
 

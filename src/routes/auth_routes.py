@@ -1,4 +1,5 @@
 from typing import Annotated, Any
+from pydantic import EmailStr
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
@@ -11,8 +12,11 @@ from src.repositories.representative_repository import RepresentativeRepository
 from src.repositories.swimming_coaches_repository import SwimmingCoachRepository
 from src.routes.dto.auth.token import Token
 from src.usecases.auth.login_usecase import login_usecase
+from src.usecases.auth.request_password_reset_usecase import (
+    request_password_reset_usecase,
+)
 
-router = APIRouter(tags=["Authentification"])
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
 @router.post("/login", response_model=Token)
@@ -37,3 +41,11 @@ def login(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Invalid Credential"
         )
+
+
+@router.post("/password-reset/request")
+def request_password_reset(
+    email: EmailStr,
+    auth_repository: Annotated[Any, Depends(AuthRepository)],
+):
+    return request_password_reset_usecase(email, auth_repository)
