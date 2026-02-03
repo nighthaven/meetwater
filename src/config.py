@@ -21,6 +21,7 @@ class Settings(BaseSettings):  # type: ignore
     smtp_port: str
     smtp_user: str
     smtp_password: str
+    frontend_base_url: str
 
     model_config = SettingsConfigDict(env_file=env_path, env_file_encoding="utf-8")
 
