@@ -33,9 +33,7 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.Column(
-            "used_at", sa.TIMESTAMP(), server_default=sa.text("now()"), nullable=False
-        ),
+        sa.Column("used_at", sa.TIMESTAMP(), server_default=None, nullable=True),
         sa.ForeignKeyConstraint(
             ["user_id"],
             ["users.id"],

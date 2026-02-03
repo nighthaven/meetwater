@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from src.models import Base
 import uuid
 from sqlalchemy.orm import Mapped, mapped_column  # type: ignore[attr-defined]
@@ -23,6 +24,6 @@ class PasswordResetToken(Base):
     )
     used_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(),
-        server_default=func.now(),
-        nullable=False,
+        nullable=True,
+        default=None,
     )

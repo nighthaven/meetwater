@@ -55,6 +55,10 @@ class Security:
         return raw_token, hashed_token
 
     @staticmethod
+    def hash_token(token: str) -> str:
+        return hashlib.sha256(token.encode()).hexdigest()
+
+    @staticmethod
     def create_access_token(data: Dict[str, Any]):
         to_encode = data.copy()
         expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
