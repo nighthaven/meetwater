@@ -42,7 +42,6 @@ class Booking(Base):
     students: Mapped[List["Swimmer"]] = relationship(
         "Swimmer", secondary="swimmers_bookings", viewonly=True
     )
-
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=datetime.utcnow, nullable=False
     )
@@ -54,6 +53,9 @@ class Booking(Base):
     )
     swimming_coach: Mapped["SwimmingCoach"] = relationship(
         "SwimmingCoach", back_populates="bookings"
+    )
+    user_pack_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("user_pack.id"), nullable=True
     )
 
     __table_args__ = (

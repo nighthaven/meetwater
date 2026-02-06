@@ -20,8 +20,8 @@ class UserPack(Base):
     swimming_coach_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("swimming_coaches.id"), nullable=False
     )
-    sessions_total: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
-    sessions_remaining: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    sessions_total: Mapped[int] = mapped_column(Integer, nullable=False)
+    sessions_remaining: Mapped[int] = mapped_column(Integer, nullable=False)
     price_paid: Mapped[float] = mapped_column(Integer, nullable=False)
     status: Mapped[PackStatus] = mapped_column(
         Enum(PackStatus, name="pack_status_enum"),
