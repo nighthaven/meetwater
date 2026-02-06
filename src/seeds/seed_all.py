@@ -9,6 +9,7 @@ from src.seeds.swimmer_seeds import SwimmerSeeds
 from src.seeds.swimming_coach_seeds import SwimmingCoachSeeds
 from src.seeds.swimming_pool_schedule_seeds import SwimmingPoolScheduleSeeds
 from src.seeds.swimming_pool_seeds import SwimmingPoolSeeds
+from src.seeds.user_pack_seeds import UserPackSeeds
 
 
 def seed_all() -> None:
@@ -24,6 +25,7 @@ def seed_all() -> None:
     booking_seeds = BookingsSeeds(db=session)
     swimming_pool_schedule_seeds = SwimmingPoolScheduleSeeds(db=session)
     coach_pack_seeds = CoachPackSeeds(db=session)
+    user_pack_seeds = UserPackSeeds(db=session)
 
     admin_seeds.create_admin_seeds()
     representatives = representative_seeds.create_representatives_seeds()
@@ -36,6 +38,7 @@ def seed_all() -> None:
     booking_seeds.create_bookings_seeds(representatives)
     swimming_pool_schedule_seeds.create_swimming_pool_schedule(swimming_pools)
     coach_pack_seeds.create_coach_pack_seeds(swimming_coaches)
+    user_pack_seeds.create_user_pack(representatives, swimming_coaches)
 
     session.commit()
     session.close()

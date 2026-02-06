@@ -18,5 +18,6 @@ def clear_tables(session):
         text("TRUNCATE TABLE swimming_pool_schedules RESTART IDENTITY CASCADE;")
     )
     session.execute(text("TRUNCATE TABLE coach_pack restart IDENTITY CASCADE;"))
+    session.execute(text("TRUNCATE TABLE user_pack restart IDENTITY CASCADE;"))
 
     session.commit()
