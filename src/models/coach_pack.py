@@ -1,11 +1,14 @@
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
+
 from sqlalchemy.dialects.postgresql import UUID
 from src.models import Base
 from sqlalchemy import ForeignKey, Integer, Boolean, TIMESTAMP, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.models.swimming_coach import SwimmingCoach
+if TYPE_CHECKING:
+    from src.models.swimming_coach import SwimmingCoach
 
 
 class CoachPack(Base):
