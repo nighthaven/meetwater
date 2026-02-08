@@ -19,6 +19,7 @@ from src.repositories.swimming_pool_repository import SwimmingPoolRepository
 from src.routes.dto.booking.booking_with_swimmer_response_model import (
     BookingWithSwimmersResponseModel,
 )
+from src.routes.dto.coach_pack.coach_pack_response_model import CoachPackResponseModel
 from src.routes.dto.swimmer.swimmer_response_model import SwimmerResponseModel
 from src.routes.dto.swimming_coach.coach_schedule_response_model import (
     CoachScheduleResponseModel,
@@ -116,6 +117,16 @@ def get_swimming_coach(
                     ],
                 )
                 for booking in coach.bookings
+            ],
+            coach_packs=[
+                CoachPackResponseModel(
+                    id=pack.id,
+                    sessions_count=pack.sessions_count,
+                    price=pack.price,
+                    final_price=pack.final_price,
+                    active=pack.active,
+                )
+                for pack in coach.coach_packs
             ],
         )
 

@@ -24,8 +24,8 @@ class CoachPack(Base):
         "SwimmingCoach", back_populates="coach_packs"
     )
     sessions_count: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
-    price: Mapped[float] = mapped_column(Integer, nullable=False)
-    final_price: Mapped[float] = mapped_column(Integer, nullable=False)
+    price: Mapped[int] = mapped_column(Integer, nullable=False)
+    final_price: Mapped[int] = mapped_column(Integer, nullable=False)
     active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(),
