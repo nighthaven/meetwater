@@ -7,6 +7,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import Date, CheckConstraint, ForeignKey, String, TIMESTAMP, func
 from src.models import Base
 from src.models.booking import Booking
+from src.models.coach_pack import CoachPack
 from src.models.coach_schedule import CoachSchedule
 from src.models.swimming_pool import SwimmingPool
 from src.models.user import User
@@ -67,6 +68,9 @@ class SwimmingCoach(Base):
 
     swimming_pool: Mapped["SwimmingPool"] = relationship(
         "SwimmingPool", back_populates="coaches"
+    )
+    coach_packs: Mapped[List["CoachPack"]] = relationship(
+        "CoachPack", back_populates="swimming_coach", cascade="all, delete-orphan"
     )
 
     __table_args__ = (

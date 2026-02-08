@@ -3,7 +3,9 @@ from datetime import datetime
 from sqlalchemy.dialects.postgresql import UUID
 from src.models import Base
 from sqlalchemy import ForeignKey, Integer, Boolean, TIMESTAMP, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from src.models.swimming_coach import SwimmingCoach
 
 
 class CoachPack(Base):
@@ -14,6 +16,9 @@ class CoachPack(Base):
     )
     swimming_coach_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("swimming_coaches.id"), nullable=False
+    )
+    swimming_coach: Mapped["SwimmingCoach"] = relationship(
+        "SwimmingCoach", back_populates="coach_packs"
     )
     sessions_count: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
     price: Mapped[float] = mapped_column(Integer, nullable=False)

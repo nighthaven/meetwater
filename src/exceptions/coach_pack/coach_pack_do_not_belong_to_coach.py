@@ -1,0 +1,2 @@
+class CoachPackDoNotBelongToCoach(Exception):
+    pass

@@ -1,4 +1,5 @@
 from fastapi import Depends
+from uuid import UUID
 from typing import Annotated
 from sqlalchemy.orm import Session
 from src.models import get_db
@@ -22,3 +23,6 @@ class CoachPackRepository:
 
     def get(self):
         return self.db.query(CoachPack).all()
+
+    def delete(self, coach_pack_id: UUID):
+        return self.db.query(CoachPack).filter_by(id=coach_pack_id).delete()

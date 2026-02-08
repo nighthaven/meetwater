@@ -26,6 +26,7 @@ from src.repositories.swimming_pool_repository import SwimmingPoolRepository
 from src.services.security import Security
 from tests.fixtures.admin_factory import AdminFactory
 from tests.fixtures.booking_factory import BookingFactory, SwimmerBookingFactory
+from tests.fixtures.coach_pack_factory import CoachPackFactory
 from tests.fixtures.coach_schedule_factory import CoachScheduleFactory
 from tests.fixtures.pool_manager_factory import PoolManagerFactory
 from tests.fixtures.representative_factory import RepresentativeFactory
@@ -100,6 +101,7 @@ def configure_factories(db_session):
         SwimmingCoachFactory,
         SwimmerCoachFactory,
         CoachScheduleFactory,
+        CoachPackFactory,
     ]:
         factory._meta.sqlalchemy_session = db_session  # type: ignore[attr-defined]
 
