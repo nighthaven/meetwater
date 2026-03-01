@@ -30,4 +30,5 @@ def get_swimming_pool_from_slug(
         "post_code": swimming_pool.post_code,
         "schedules": swimming_pool.schedules,
         "coaches_schedules": coaches_schedules,
+        "coaches": swimming_pool.coaches,
     }
