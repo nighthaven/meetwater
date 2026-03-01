@@ -84,7 +84,6 @@ class CoachAssignationService:
         )
 
         appointment_at = self.booking_query.appointment_at
-        duration_minutes = self.booking_query.duration_minutes
         for booking in swimming_coach.bookings:
             booking_over = booking.appointment_at + timedelta(
                 minutes=booking.duration_minutes
@@ -94,12 +93,14 @@ class CoachAssignationService:
                     "Coach already have an appointement at this time."
                 )
 
-        appointment_over = appointment_at + timedelta(minutes=duration_minutes)
         is_schedule_matching = False
         for schedule in swimming_coach.schedules:
+            schedule_over = schedule.scheduled_at + timedelta(
+                minutes=schedule.duration_minutes
+            )
             if (
                 schedule.activity == coach_planning_to_match
-                and appointment_at <= schedule.scheduled_at < appointment_over
+                and schedule.scheduled_at <= appointment_at < schedule_over
             ):
                 is_schedule_matching = True
         if not is_schedule_matching:
@@ -112,15 +113,15 @@ class CoachAssignationService:
         coach_activity: CoachActivity,
     ) -> List[SwimmingCoach]:
         appointment_at = self.booking_query.appointment_at
-        appointment_over = appointment_at + timedelta(
-            minutes=self.booking_query.duration_minutes
-        )
         list_selected_coaches = []
         for coach in list_coaches:
             for schedule in coach.schedules:
+                schedule_over = schedule.scheduled_at + timedelta(
+                    minutes=schedule.duration_minutes
+                )
                 if (
                     schedule.activity == coach_activity
-                    and appointment_at <= schedule.scheduled_at < appointment_over
+                    and schedule.scheduled_at <= appointment_at < schedule_over
                 ):
                     list_selected_coaches.append(coach)
         return list_selected_coaches
