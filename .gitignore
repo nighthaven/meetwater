@@ -13,3 +13,8 @@ wheels/
 #env
 .env.test
 .env.dev
+
+# Scripts de déploiement (contiennent des credentials)
+deploy.sh
+setup_secrets.sh
+env.prod.yaml
