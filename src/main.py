@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.config import settings
 from src.routes.auth_routes import router as login_router
 from src.routes.representative_routes import router as representative_router
 from src.routes.swimmer_routes import router as swimmer_router
@@ -14,9 +15,11 @@ from src.routes.coach_pack_routes import router as coach_pack_router
 
 app = FastAPI()
 
+allowed_origins = [o.strip() for o in settings.allowed_origins.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:4200", "*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
