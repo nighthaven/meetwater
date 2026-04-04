@@ -14,7 +14,7 @@ from src.routes.coach_schedules_routes import router as coach_schedules_router
 from src.routes.coach_pack_routes import router as coach_pack_router
 
 
-app = FastAPI()
+app = FastAPI(redirect_slashes=False)
 
 allowed_origins = [o.strip() for o in settings.allowed_origins.split(",") if o.strip()]
 
