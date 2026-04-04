@@ -26,7 +26,18 @@ def install_models() -> None:
     from src.models import coach_pack
 
 
-SQLALCHEMY_DATABASE_URL = f"postgresql://postgres:{settings.database_password}@{settings.database_hostname}:{settings.database_port}/{settings.database_name}"
+if settings.database_hostname.startswith("/"):
+    # Cloud SQL Auth Proxy via Unix socket (production GCP)
+    SQLALCHEMY_DATABASE_URL = (
+        f"postgresql://{settings.database_username}:{settings.database_password}"
+        f"@/{settings.database_name}?host={settings.database_hostname}"
+    )
+else:
+    # TCP (local dev)
+    SQLALCHEMY_DATABASE_URL = (
+        f"postgresql://{settings.database_username}:{settings.database_password}"
+        f"@{settings.database_hostname}:{settings.database_port}/{settings.database_name}"
+    )
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
