@@ -30,7 +30,7 @@ from src.models.user import User
 
 from src.routes.dto.auth.token_data import TokenData
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 SECRET_KEY = settings.secret_key
 ALGORYTHM = settings.algorythm
