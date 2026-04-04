@@ -11,6 +11,23 @@ steps:
       - push
       - europe-west9-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/meetwater-backend:$COMMIT_SHA
 
+  - name: "python:3.11"
+    entrypoint: bash
+    secretEnv:
+      - DATABASE_PASSWORD
+      - DATABASE_USERNAME
+      - DATABASE_NAME
+    args:
+      - -c
+      - |
+        wget -q -O /usr/local/bin/cloud-sql-proxy \
+          https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.14.1/cloud-sql-proxy.linux.amd64
+        chmod +x /usr/local/bin/cloud-sql-proxy
+        /usr/local/bin/cloud-sql-proxy meetwater:europe-west9:meetwater-db --port=5432 &
+        sleep 3
+        pip install uv --quiet
+        DATABASE_HOSTNAME=127.0.0.1 DATABASE_PORT=5432 uv run alembic upgrade head
+
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     entrypoint: gcloud
     args:
@@ -24,6 +41,15 @@ steps:
       - --add-cloudsql-instances=meetwater:europe-west9:meetwater-db
       - --update-secrets=DATABASE_HOSTNAME=DATABASE_HOSTNAME:latest,DATABASE_PORT=DATABASE_PORT:latest,DATABASE_NAME=DATABASE_NAME:latest,DATABASE_USERNAME=DATABASE_USERNAME:latest,DATABASE_PASSWORD=DATABASE_PASSWORD:latest,SECRET_KEY=SECRET_KEY:latest,ALGORYTHM=ALGORYTHM:latest,ACCESS_TOKEN_EXPIRE_MINUTES=ACCESS_TOKEN_EXPIRE_MINUTES:latest,FROM_EMAIL=FROM_EMAIL:latest,SMTP_HOST=SMTP_HOST:latest,SMTP_PORT=SMTP_PORT:latest,SMTP_USER=SMTP_USER:latest,SMTP_PASSWORD=SMTP_PASSWORD:latest,FRONTEND_BASE_URL=FRONTEND_BASE_URL:latest
       - --project=$PROJECT_ID
+
+availableSecrets:
+  secretManager:
+    - versionName: projects/$PROJECT_ID/secrets/DATABASE_PASSWORD/versions/latest
+      env: DATABASE_PASSWORD
+    - versionName: projects/$PROJECT_ID/secrets/DATABASE_USERNAME/versions/latest
+      env: DATABASE_USERNAME
+    - versionName: projects/$PROJECT_ID/secrets/DATABASE_NAME/versions/latest
+      env: DATABASE_NAME
 
 options:
   logging: CLOUD_LOGGING_ONLY
