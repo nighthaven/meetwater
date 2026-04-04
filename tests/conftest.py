@@ -14,6 +14,7 @@ from src.models.admin import Admin
 from src.models.pool_manager import PoolManager
 from src.models.representative import Representative
 from src.models.swimming_coach import SwimmingCoach
+from src.repositories.admin_repository import AdminRepository
 from src.repositories.auth_repository import AuthRepository
 from src.repositories.booking_repository import BookingRepository
 from src.repositories.coach_pack_repository import CoachPackRepository
@@ -107,6 +108,11 @@ def configure_factories(db_session):
 
 
 # injection dépendance :
+
+
+@pytest.fixture
+def admin_repo(db_session):
+    return AdminRepository(db_session)
 
 
 @pytest.fixture

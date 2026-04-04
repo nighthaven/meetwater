@@ -12,3 +12,16 @@ class AdminRepository:
 
     def find_by_user_id(self, user_id) -> Admin | None:
         return self.db.query(Admin).filter(Admin.user_id == user_id).first()
+
+    def save(self, admin: Admin):
+        try:
+            self.db.add(admin)
+            self.db.commit()
+            self.db.refresh(admin)
+        except Exception as e:
+            self.db.rollback()
+            self.db.close()
+            raise e
+
+    def count(self) -> int:
+        return self.db.query(Admin).count()

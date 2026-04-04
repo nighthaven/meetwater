@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.config import settings
+from src.routes.admin_routes import router as admin_router
 from src.routes.auth_routes import router as login_router
 from src.routes.representative_routes import router as representative_router
 from src.routes.swimmer_routes import router as swimmer_router
@@ -32,6 +33,7 @@ def read_root():
 
 
 routers = [
+    admin_router,
     login_router,
     representative_router,
     swimmer_router,
