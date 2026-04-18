@@ -7,18 +7,37 @@ from src.exceptions.representative.representative_not_found_exception import (
 from src.exceptions.swimming_pool.swimming_pool_not_found_exception import (
     SwimmingPoolNotFoundException,
 )
+from src.models.admin import Admin
 from src.models.user import User
 from src.repositories.swimming_pool_repository import SwimmingPoolRepository
+from src.routes.dto.swimming_pool.swimming_pool_created_response_model import (
+    SwimmingPoolCreatedResponseModel,
+)
+from src.routes.dto.swimming_pool.swimming_pool_query import SwimmingPoolQuery
 from src.routes.dto.swimming_pool.swimming_pool_response_model import (
     SwimmingPoolResponseModel,
 )
 from src.services.security import Security
+from src.usecases.swimming_pool.create_swimming_pool import create_swimming_pool_usecase
 from src.usecases.swimming_pool.get_swimming_pool import get_swimming_pool_from_slug
 
 router = APIRouter(
     prefix="/swimming_pool",
     tags=["swimming_pool"],
 )
+
+
+@router.post(
+    "/",
+    status_code=status.HTTP_201_CREATED,
+    response_model=SwimmingPoolCreatedResponseModel,
+)
+def create_swimming_pool(
+    query: SwimmingPoolQuery,
+    swimming_pool_repository: Annotated[Any, Depends(SwimmingPoolRepository)],
+    current_admin: Admin = Depends(Security.get_current_admin),
+):
+    return create_swimming_pool_usecase(query, swimming_pool_repository)
 
 
 @router.get(

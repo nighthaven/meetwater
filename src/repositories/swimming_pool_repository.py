@@ -16,6 +16,17 @@ class SwimmingPoolRepository:
     def find(self, swimming_pool_id: UUID) -> SwimmingPool | None:
         return self.db.query(SwimmingPool).filter_by(id=swimming_pool_id).one_or_none()
 
+    def save(self, swimming_pool: SwimmingPool) -> SwimmingPool:
+        try:
+            self.db.add(swimming_pool)
+            self.db.commit()
+            self.db.refresh(swimming_pool)
+            return swimming_pool
+        except Exception as e:
+            self.db.rollback()
+            self.db.close()
+            raise e
+
     def find_by_slug(self, slug: str) -> SwimmingPool | None:
         return (
             self.db.query(SwimmingPool)
