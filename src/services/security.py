@@ -160,6 +160,35 @@ class Security:
         return pool_manager
 
     @staticmethod
+    def get_current_admin_or_pool_manager(
+        token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+    ):
+        credential_exception = HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Couldn't validate credential",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+        token_data: TokenData = Security.verify_access_token(
+            token, credential_exception
+        )
+        if token_data.admin_id:
+            admin = db.query(Admin).filter_by(id=token_data.admin_id).one_or_none()
+            if admin:
+                return admin
+        if token_data.pool_manager_id:
+            pool_manager = (
+                db.query(PoolManager)
+                .filter_by(id=token_data.pool_manager_id)
+                .one_or_none()
+            )
+            if pool_manager:
+                return pool_manager
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin or pool manager access required",
+        )
+
+    @staticmethod
     def get_current_swimming_coach(
         token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
     ):

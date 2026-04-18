@@ -11,7 +11,7 @@ class TestPoolManagerRoutes:
             "email": "johndoe@example.com",
             "raw_password": "password",
         }
-        response = admin_client.post("/pool_managers", json=payload)
+        response = admin_client.post("/pool_managers/", json=payload)
 
         assert response.status_code == 201
 

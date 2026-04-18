@@ -1,3 +1,7 @@
+from tests.fixtures.user_factory import UserFactory
+from src.services.security import Security
+
+
 class TestAdminRoutes:
     def test_bootstrap_creates_first_admin(self, client, admin_repo):
         payload = {
@@ -49,3 +53,32 @@ class TestAdminRoutes:
 
         assert response.status_code == 201
         assert admin_repo.count() == 2
+
+
+class TestAdminResetUserPassword:
+    def test_reset_user_password_as_admin(self, admin_client, auth_repo, db_session):
+        user = UserFactory(email="target@example.com")
+        db_session.commit()
+
+        response = admin_client.post(
+            "/admin/reset-user-password",
+            json={"email": "target@example.com", "new_password": "NewPass123!"},
+        )
+
+        assert response.status_code == 204
+        db_session.refresh(user)
+        assert Security().verify_password("NewPass123!", user.password)
+
+    def test_reset_user_password_unknown_email(self, admin_client):
+        response = admin_client.post(
+            "/admin/reset-user-password",
+            json={"email": "nobody@example.com", "new_password": "NewPass123!"},
+        )
+        assert response.status_code == 404
+
+    def test_reset_user_password_requires_admin(self, client):
+        response = client.post(
+            "/admin/reset-user-password",
+            json={"email": "target@example.com", "new_password": "NewPass123!"},
+        )
+        assert response.status_code == 401

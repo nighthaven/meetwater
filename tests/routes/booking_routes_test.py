@@ -24,7 +24,7 @@ class TestBookingRoutes:
             "swimmers_ids": [str(swimmer.id)],
             "swimming_coach_id": None,
         }
-        response = representative_client.post("/bookings", json=payload)
+        response = representative_client.post("/bookings/", json=payload)
 
         assert response.status_code == 201
         query_booking = db_session.query(Booking).all()
@@ -44,7 +44,7 @@ class TestGetBookingRoute:
         booking_1 = BookingFactory(swimmers=[swimmer], swimming_coach=swimming_coach)
         booking_2 = BookingFactory(swimmers=[swimmer])
 
-        response = representative_client.get("/bookings")
+        response = representative_client.get("/bookings/")
 
         assert response.status_code == 200
         assert (

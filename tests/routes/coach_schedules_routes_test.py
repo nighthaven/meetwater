@@ -14,7 +14,7 @@ class TestCoachSchedulesRoutes:
             "duration_minutes": 240,
         }
 
-        swimming_coach_client.post("/coach_schedules", json=payload)
+        swimming_coach_client.post("/coach_schedules/", json=payload)
 
         query_coach_schedule = coach_schedule_repo.get()
         assert len(query_coach_schedule) == 1

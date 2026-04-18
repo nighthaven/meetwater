@@ -32,7 +32,7 @@ class TestCreateSwimmingCoach:
             security,
             swimming_pool_repo,
             swimming_coach_repo,
-            authenticated_pool_manager,
+            authenticated_pool_manager.swimming_pool_id,
         )
 
         query_swimming_coach = db_session.query(SwimmingCoach).all()

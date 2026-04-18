@@ -15,7 +15,7 @@ class TestSwimmersRoutes:
             "birth_date": birth_date.isoformat(),
             "level": SwimmerLevel.BEGINNER.value,
         }
-        response = representative_client.post("/swimmers", json=payload)
+        response = representative_client.post("/swimmers/", json=payload)
 
         assert response.status_code == 201
         query_swimmers = db_session.query(Swimmer).all()
@@ -31,7 +31,7 @@ class TestSwimmersRoutes:
         swimmer_2 = SwimmerFactory(representatives=[representative])
         swimming_coach = SwimmingCoachFactory(swimmers=[swimmer_1, swimmer_2])
 
-        response = representative_client.get("/swimmers")
+        response = representative_client.get("/swimmers/")
 
         assert response.status_code == 200
         assert len(response.json()) == 2

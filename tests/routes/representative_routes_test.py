@@ -10,6 +10,6 @@ class TestCreateRepresentativeRoute:
             "email": "johndoe@gmail.com",
             "raw_password": "password",
         }
-        response = client.post("/representatives", json=payload)
+        response = client.post("/representatives/", json=payload)
 
         assert response.status_code == 201

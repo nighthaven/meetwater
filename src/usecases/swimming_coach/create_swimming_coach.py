@@ -1,5 +1,4 @@
-from fastapi import Depends
-from src.models.pool_manager import PoolManager
+from uuid import UUID
 from src.models.swimming_coach import SwimmingCoach
 from src.repositories.swimming_coaches_repository import SwimmingCoachRepository
 from src.repositories.swimming_pool_repository import SwimmingPoolRepository
@@ -15,17 +14,15 @@ def create_swimming_coach_usecase(
     security: Security,
     swimming_pool_repository: SwimmingPoolRepository,
     swimming_coach_repository: SwimmingCoachRepository,
-    current_pool_manager: PoolManager = Depends(Security.get_current_pool_manager),
+    swimming_pool_id: UUID,
 ):
-    get_and_validate_swimming_pool(
-        current_pool_manager.swimming_pool_id, swimming_pool_repository
-    )
+    get_and_validate_swimming_pool(swimming_pool_id, swimming_pool_repository)
     swimming_coach = SwimmingCoach(
         first_name=swimming_coach_query.first_name,
         last_name=swimming_coach_query.last_name,
         last_caep_certification_date=swimming_coach_query.last_caep_certification_date,
         last_pse_certification_date=swimming_coach_query.last_pse_certification_date,
-        swimming_pool_id=current_pool_manager.swimming_pool_id,
+        swimming_pool_id=swimming_pool_id,
         email=swimming_coach_query.email,
         password=security.hash_password(swimming_coach_query.raw_password),
     )

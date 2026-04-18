@@ -48,15 +48,25 @@ def create_swimming_coach(
     security: Annotated[Any, Depends(Security)],
     swimming_pool_repository: Annotated[Any, Depends(SwimmingPoolRepository)],
     swimming_coach_repository: Annotated[Any, Depends(SwimmingCoachRepository)],
-    current_pool_manager: PoolManager = Depends(Security.get_current_pool_manager),
+    current_user: Annotated[Any, Depends(Security.get_current_admin_or_pool_manager)],
 ):
+    if isinstance(current_user, PoolManager):
+        swimming_pool_id = current_user.swimming_pool_id
+    else:
+        if not query.swimming_pool_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="swimming_pool_id is required when creating a coach as admin",
+            )
+        swimming_pool_id = query.swimming_pool_id
+
     try:
         create_swimming_coach_usecase(
             query,
             security,
             swimming_pool_repository,
             swimming_coach_repository,
-            current_pool_manager,
+            swimming_pool_id,
         )
     except PoolManagerNotFoundException:
         raise HTTPException(

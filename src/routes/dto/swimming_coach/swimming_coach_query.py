@@ -1,3 +1,4 @@
+from uuid import UUID
 from pydantic import BaseModel, EmailStr
 from datetime import date
 
@@ -9,3 +10,4 @@ class SwimmingCoachQuery(BaseModel):
     last_pse_certification_date: date
     email: EmailStr
     raw_password: str
+    swimming_pool_id: UUID | None = None

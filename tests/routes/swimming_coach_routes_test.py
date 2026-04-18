@@ -4,9 +4,46 @@ from src.models.swimming_coach import SwimmingCoach
 from tests.fixtures.booking_factory import BookingFactory
 from tests.fixtures.coach_pack_factory import CoachPackFactory
 from tests.fixtures.coach_schedule_factory import CoachScheduleFactory
+from tests.fixtures.swimming_pool_factory import SwimmingPoolFactory
 
 
 class TestSwimmingCoachRoutes:
+    def test_create_swimming_coach_as_admin(self, admin_client, db_session):
+        swimming_pool = SwimmingPoolFactory()
+        db_session.commit()
+        caep_date = (datetime.now(timezone.utc) - timedelta(days=2 * 365)).date()
+        pse_date = (datetime.now(timezone.utc) - timedelta(days=200)).date()
+        payload = {
+            "first_name": "John",
+            "last_name": "Doe",
+            "last_caep_certification_date": caep_date.isoformat(),
+            "last_pse_certification_date": pse_date.isoformat(),
+            "email": "johndoe_admin@example.com",
+            "raw_password": "password",
+            "swimming_pool_id": str(swimming_pool.id),
+        }
+        response = admin_client.post("/swimming_coaches/", json=payload)
+        assert response.status_code == 201
+        query_swimming_coach = db_session.query(SwimmingCoach).all()
+        assert len(query_swimming_coach) == 1
+        assert query_swimming_coach[0].first_name == "John"
+
+    def test_create_swimming_coach_as_admin_without_pool_id_fails(
+        self, admin_client, db_session
+    ):
+        caep_date = (datetime.now(timezone.utc) - timedelta(days=2 * 365)).date()
+        pse_date = (datetime.now(timezone.utc) - timedelta(days=200)).date()
+        payload = {
+            "first_name": "John",
+            "last_name": "Doe",
+            "last_caep_certification_date": caep_date.isoformat(),
+            "last_pse_certification_date": pse_date.isoformat(),
+            "email": "johndoe_admin@example.com",
+            "raw_password": "password",
+        }
+        response = admin_client.post("/swimming_coaches/", json=payload)
+        assert response.status_code == 400
+
     def test_create_swimming_coach_routes(self, pool_manager_client, db_session):
         caep_date = (datetime.now(timezone.utc) - timedelta(days=2 * 365)).date()
         pse_date = (datetime.now(timezone.utc) - timedelta(days=200)).date()
@@ -18,7 +55,7 @@ class TestSwimmingCoachRoutes:
             "email": "johndoe@example.com",
             "raw_password": "password",
         }
-        response = pool_manager_client.post("/swimming_coaches", json=payload)
+        response = pool_manager_client.post("/swimming_coaches/", json=payload)
         assert response.status_code == 201
         query_swimming_coach = db_session.query(SwimmingCoach).all()
         assert len(query_swimming_coach) == 1
@@ -35,7 +72,7 @@ class TestSwimmingCoachRoutes:
         pack = CoachPackFactory(swimming_coach=swimming_coach)
 
         response = swimming_coach_client.get(
-            "/swimming_coaches", params={"swimming_coach_id": str(swimming_coach.id)}
+            "/swimming_coaches/", params={"swimming_coach_id": str(swimming_coach.id)}
         )
         assert response.status_code == 200
         assert response.json()["id"] == str(swimming_coach.id)
